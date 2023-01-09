@@ -1,0 +1,14 @@
+{
+  "id": "f4e50d84-e356-4942-89fd-be49d83373bd",
+  "type": "list-custom-btn",
+  "main": "main.1c7c0914.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W53-GffHpJ",
+  "requirement-name": "填报行内按钮二开"
+}
