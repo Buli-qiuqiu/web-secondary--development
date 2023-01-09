@@ -1,0 +1,14 @@
+{
+  "id": "bbbc300f-02c0-4062-ba45-ab9d6d643062",
+  "type": "list-custom-btn",
+  "main": "main.1681e783.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W53-IL3ZIq",
+  "requirement-name": "新二开物资模板导入功能"
+}
