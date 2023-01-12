@@ -50,7 +50,7 @@ export default class PersonalizedForm extends Component {
         { label: '业务人员', key: '6' },
         { label: '其他', key: '99' },]
       const tradeList = [{ label: '城市/应急/政务', key: '1' },
-      { label: 'CTO/研发总监/架构/产品', key: '2' },
+      { label: '工业/能源/电力', key: '2' },
       { label: '园区/物流/交通', key: '3' },
       { label: '水利/水务/环保', key: '4' },
       { label: '医疗/卫生/教育', key: '5' },

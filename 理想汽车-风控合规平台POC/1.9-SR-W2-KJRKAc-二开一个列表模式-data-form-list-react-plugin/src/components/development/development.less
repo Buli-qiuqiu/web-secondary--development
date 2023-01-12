@@ -1,0 +1,46 @@
+#map {
+  height: 1000px;
+  width: 100%;
+  .map-container {
+    .lt {
+      display: none;
+      width: 40px;
+    }
+
+    .map-canvas root tpc {
+      max-width: 500px;
+      overflow: hidden;
+      word-break: break-all;
+    }
+    .close {
+      display: none;
+    }
+    cmenu .menu-list #cm-add_parent {
+      display: none;
+    }
+    nmenu {
+      display: none;
+    }
+  }
+
+  root tpc {
+    & > div {
+      min-width: 100% !important;
+      height: auto;
+      // height: 100%;
+      padding: 10px 15px;
+    }
+  }
+
+  cmenu {
+    #cm-add_child,
+    #cm-remove_child,
+    #cm-add_sibling,
+    #cm-fucus,
+    #cm-unfucus,
+    #cm-up,
+    #cm-down {
+      display: none;
+    }
+  }
+}

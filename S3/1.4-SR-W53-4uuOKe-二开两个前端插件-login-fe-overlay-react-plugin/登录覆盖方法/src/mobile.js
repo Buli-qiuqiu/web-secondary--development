@@ -19,6 +19,7 @@ import {
     queryAllMsg,
     userMsgInsert,
 } from './api/asset';
+import errorCode from './ERROR_zh_CN.json'
 // import { FormInstance } from 'antd-mobile-v5/es/components/form';
 import qs from 'querystringify';
 import './app.less';
@@ -44,7 +45,7 @@ const functionList = [
 const tradeList = [
     [
         { label: '城市/应急/政务', value: '1' },
-        { label: 'CTO/研发总监/架构/产品', value: '2' },
+        { label: '工业/能源/电力', value: '2' },
         { label: '园区/物流/交通', value: '3' },
         { label: '水利/水务/环保', value: '4' },
         { label: '医疗/卫生/教育', value: '5' },
@@ -136,7 +137,7 @@ const App = props => {
                 .catch(err => {
                     Toast.show({
                         icon: 'fail',
-                        content: err?.data?.message || '登录失败',
+                        content: errorCode[`ERROR.${err.data.code}`] || '登录失败',
                     })
                     resolve({ success: false });
                 });

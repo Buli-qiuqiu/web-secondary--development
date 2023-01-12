@@ -13,6 +13,7 @@ import {
 } from 'antd-mobile-v5';
 import background from './images/background.png';
 import compute from './images/compute.png';
+import errorCode from './ERROR_zh_CN.json'
 import { queryAllMsg, userMsgInsert, createAccount } from './api/asset';
 import './app.less';
 
@@ -30,7 +31,7 @@ const functionList = [
 const tradeList = [
     [
         { label: '城市/应急/政务', value: '1' },
-        { label: 'CTO/研发总监/架构/产品', value: '2' },
+        { label: '工业/能源/电力', value: '2' },
         { label: '园区/物流/交通', value: '3' },
         { label: '水利/水务/环保', value: '4' },
         { label: '医疗/卫生/教育', value: '5' },
@@ -128,7 +129,7 @@ const App = props => {
                     console.log(909090, err);
                     Toast.show({
                         icon: 'fail',
-                        content: err?.data?.message || '注册失败',
+                        content: errorCode[`ERROR.${err.data.code}`] || '注册失败',
                     })
                     resolve({ success: false });
                 });

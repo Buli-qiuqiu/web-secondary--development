@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import PersonalizedForm from './PersonalizedForm';
 import { message, notification, Modal } from "antd";
-
+import errorCode from './ERROR_zh_CN.json'
 // 登录接口
 import { loginAccount, getUser, loginByPhone } from "./api/asset";
 
@@ -61,13 +61,14 @@ const App = ({ type, ...props }) => {
 
                     })
                     .catch((err) => {
-                        if (err.data?.message == 'Wrong user name or password!') {
-                            message.error('用户名或密码错误');
-                        } else if (err.data?.message == 'Mobile phone verification code error') {
-                            message.error('短信验证码错误');
-                        } else {
-                            message.error('图片验证码校验失败');
-                        }
+                        message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
+                        // if (err.data?.message == 'Wrong user name or password!') {
+                        //     message.error('用户名或密码错误');
+                        // } else if (err.data?.message == 'Mobile phone verification code error') {
+                        //     message.error('短信验证码错误');
+                        // } else {
+                        //     message.error('图片验证码校验失败');
+                        // }
                         reject(err)
                     });
             } else {
@@ -98,11 +99,12 @@ const App = ({ type, ...props }) => {
 
                     })
                     .catch((err) => {
-                        if (err.data?.message == 'Wrong user name or password!') {
-                            message.error('用户名或密码错误');
-                        } else {
-                            message.error('图片验证码校验失败');
-                        }
+                        message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
+                        // if (err.data?.message == 'Wrong user name or password!') {
+                        //     message.error('用户名或密码错误');
+                        // } else {
+                        //     message.error('图片验证码校验失败');
+                        // }
                         reject(err)
                     });
             }

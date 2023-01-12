@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import PersonalizedForm from './PersonalizedForm';
 import { message, notification, Modal } from "antd";
-
+import errorCode from './ERROR_zh_CN.json'
 // 登录接口
 import { createAccount2 } from "./api/asset";
 
@@ -70,12 +70,13 @@ const App = ({ type, ...props }) => {
                 })
                 .catch((err) => {
                     console.log(err, '===注册失败');
-                    if (err.data.code == 100000017) {
-                        message.error('图片验证码校验失败');
-                    }
-                    if (err.data?.message == 'Login is already in use!') {
-                        message.error('该用户已经注册成功');
-                    }
+                    message.error(errorCode[`ERROR.${err.data.code}`] || '注册失败');
+                    // if (err.data.code == 100000017) {
+                    //     message.error('图片验证码校验失败');
+                    // }
+                    // if (err.data?.message == 'Login is already in use!') {
+                    //     message.error('该用户已经注册成功');
+                    // }
 
                     reject({ success: false })
                 });
