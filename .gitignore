@@ -2,6 +2,10 @@
 node_modules
 /.pnp
 .pnp.js
+
+# testing
+/coverage
+
 # production
 docs-dist
 dist
@@ -10,15 +14,15 @@ es
 lib
 
 # misc
-
 .DS_Store
 pluginTemp/js/*
 **/pluginTemp/js/*.js
 pluginTemp/libs/*
 plugin-*.zip
-.history
 temp
-
+.history
+# log files
+*.log
 # Editor directories and files
 .umi
 .idea
