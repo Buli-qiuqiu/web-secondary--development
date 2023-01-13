@@ -12,7 +12,7 @@ const getQueryString = name => {
   return "";
 };
 let projectId = getQueryString('zj');
-let props = {
+let propsAttr = {
   name: 'file',
   listType: "picture-card",
   action: `/sdata/rest/ext/import/excel/file?projectId=${projectId}`,
@@ -55,12 +55,13 @@ let props = {
     }
   },
 };
-const List = ({
-  dataSource,
-  customParams,
-  dataId,
-  deleteData
-}) => {
+const List = (props) => {
+  let {
+    dataSource,
+      customParams,
+      dataId,
+      deleteData
+  } = props;
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTwoVisible, setModalTwoVisible] = useState(false);
   const [successData, setSuccessData] = useState({});
@@ -95,6 +96,7 @@ const List = ({
           let { data } = res;
           setSuccessData(data)
           // message.success(`成功${data.successNum}条，失败${data.errorNum}条`);
+          props.handleSearch();
           setModalTwoVisible(true);
         }).catch(err => {
           let { data: errData } = err;
@@ -109,7 +111,7 @@ const List = ({
   return (
     <div className="pinks">
       <Modal title="导入文件" visible={modalVisible} footer={null} destroyOnClose={true} onCancel={handleCancel} width={960} wrapClassName="tranferModal" getContainer={false}>
-        <Upload {...props} className="uploadBtn" beforeUpload={handleBeforeUpload}>
+        <Upload {...propsAttr} className="uploadBtn" beforeUpload={handleBeforeUpload}>
           <div className='upBox'>
             <CloudUploadOutlined className="upIcon" style={{ fontSize: '40px', marginRight: '30px' }} />
             <span className="upTxt">点击上传文件</span>
