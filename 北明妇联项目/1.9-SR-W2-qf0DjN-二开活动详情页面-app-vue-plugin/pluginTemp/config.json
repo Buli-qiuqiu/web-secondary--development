@@ -1,0 +1,20 @@
+{
+  "id": "bfdac701-6865-4a9f-8696-9a9f4b459e5e",
+  "type": "app",
+  "main": "app.5831047c.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W2-qf0DjN",
+  "requirement-name": "二开活动详情页面"
+}
