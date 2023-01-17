@@ -1,0 +1,21 @@
+{
+  "id": "7baeee90-5e3e-4642-9f57-5d527620bf2f",
+  "type": "app",
+  "main": "app.1d26b498.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id",
+      "弹出层顶部距离"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W2-k77IZv",
+  "requirement-name": "定位功能及四级地址切换功能"
+}

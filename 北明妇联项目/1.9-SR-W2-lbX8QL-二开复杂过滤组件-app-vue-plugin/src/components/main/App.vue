@@ -12,7 +12,7 @@
 import "./app.less";
 import { queryAssetById, queryAreaByApi, jsSdkConfig, queryAddress } from "../../api/asset";
 
-import VConsole from "vconsole";
+// import VConsole from "vconsole";
 
 export default {
    name: "Main",
@@ -47,13 +47,6 @@ export default {
             { text: "近三个月", value: "1" },
             { text: "近半年", value: "2" },
          ],
-
-         eventData: {
-            citycode: "",
-            typevalue: "",
-            starttime: "",
-            endtime: "",
-         },
       };
    },
 
@@ -98,7 +91,17 @@ export default {
                   value: item.data_id,
                });
             });
-            this.type = this.typeList[0].value;
+
+            let sessionType = window.sessionStorage.getItem("dropTypevalue");
+            if (sessionType) {
+               let _type = this.typeList.filter((item) => {
+                  return item.value == sessionType;
+               });
+
+               this.type = _type[0].value;
+               this.typeTitle = _type[0].text;
+            }
+
          });
          // 请求城市数据
          queryAreaByApi().then((res) => {
@@ -110,40 +113,69 @@ export default {
                   });
                }
             });
+
+            let sessionCity = window.sessionStorage.getItem("dropCitycode");
+            if (sessionCity) {
+               let _city = this.cityList.filter((item) => {
+                  return item.value == sessionCity;
+               });
+
+               this.city = _city[0].value;
+               this.cityTitle = _city[0].text;
+            }
+
             this.getJSSDK();
          });
+
+         // 获取sessios中时间数据
+         let sessionTime = window.sessionStorage.getItem("dropTime");
+         if (sessionTime) {
+            let _time = this.dateList.filter((item) => {
+               return item.value == sessionTime;
+            });
+
+            this.date = _time[0].value;
+            this.dateTitle = _time[0].text;
+         }
       },
 
       // 切换城市
       changeCityDropDown(value) {
          this.cityTitle = this.filterData(this.cityList, value);
-         this.eventData.citycode = value;
          this.triggerEvent("dropCitycode", { citycode: value });
+
+         window.sessionStorage.setItem("dropCitycode", value);
       },
       // 切换类型
       changeTypeDropDown(value) {
          this.typeTitle = this.filterData(this.typeList, value);
-
-         this.eventData.typevalue = value;
-
          this.triggerEvent("dropTypevalue", { typevalue: value });
+
+         window.sessionStorage.setItem("dropTypevalue", value);
       },
       // 切换日期
       changeDateDropDown(value) {
          this.dateTitle = this.filterData(this.dateList, value);
+         
+         let timeValue = {
+            starttime: "",
+            endtime: "",
+         };
 
          if (this.dateTitle == "近一个月") {
-            this.eventData.starttime = this.getDateTime(1).starttime;
-            this.eventData.endtime = this.getDateTime(1).endtime;
+            timeValue.starttime = this.getDateTime(1).starttime;
+            timeValue.endtime = this.getDateTime(1).endtime;
          } else if (this.dateTitle == "近三个月") {
-            this.eventData.starttime = this.getDateTime(3).starttime;
-            this.eventData.endtime = this.getDateTime(3).endtime;
+            timeValue.starttime = this.getDateTime(3).starttime;
+            timeValue.endtime = this.getDateTime(3).endtime;
          } else if (this.dateTitle == "近半年") {
-            this.eventData.starttime = this.getDateTime(6).starttime;
-            this.eventData.endtime = this.getDateTime(6).endtime;
+            timeValue.starttime = this.getDateTime(6).starttime;
+            timeValue.endtime = this.getDateTime(6).endtime;
          }
 
-         this.triggerEvent("dropTime", { starttime: this.eventData.starttime, endtime: this.eventData.endtime });
+         window.sessionStorage.setItem("dropTime", value);
+
+         this.triggerEvent("dropTime", { starttime: timeValue.starttime, endtime: timeValue.endtime });
       },
 
       // 获取定位
@@ -180,6 +212,7 @@ export default {
                return item.text == cityName;
             });
 
+            window.sessionStorage.setItem("dropCitycode", cityArr[0].value);
             this.city = cityArr[0].value;
             this.cityTitle = cityArr[0].text;
          });

@@ -1,0 +1,14 @@
+{
+  "id": "dbf3eee1-0e18-411f-881b-7ee12134ee85",
+  "type": "list-custom-btn",
+  "main": "main.1c952667.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W2-yxrKjF",
+  "requirement-name": "二开行内按钮响应方式打开页面"
+}

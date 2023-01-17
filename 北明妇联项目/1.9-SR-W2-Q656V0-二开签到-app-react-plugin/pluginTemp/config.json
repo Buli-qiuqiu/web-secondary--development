@@ -1,0 +1,20 @@
+{
+  "id": "5222d38f-c98a-4a36-b5c7-ff555293878a",
+  "type": "app",
+  "main": "main.c86119cf.js",
+  "version": "2",
+  "configuration": true,
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "dsadq",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id"
+    ]
+  },
+  "requirement-number": "需求编号",
+  "requirement-name": "需求名称"
+}
