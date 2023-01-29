@@ -1,19 +1,17 @@
 import axios from "axios";
 import qs from "querystringify";
 
-let apiContextPath = "";
 if (process.env.NODE_ENV === "development") {
   document.cookie =
-    "token=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY3MzMzMzY3MDIzMywidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.i6nUY2C7NrvijXO7IYcO7Nu9TZrb4qU5VV2UAI6SQrk";
+    "token=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY3MzkyMTI3NTQ3OSwidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.h8tYwX9YJI2KzNylECeUiUxIRZ_osCveONcp2pbswwY";
   document.cookie =
-    "refreshToken=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY0NjcyMjI2ODY4Nn0.TEVE_nopHNZlvSQM_RUZrLcCzkaERiHo8nz0q-ksL3E";
+    "refreshToken=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY2OTg3NTU4Nzc1Mn0.HxD7SGz7fLxZpR-AXX18TFRjqmKPC5COen27jg3y-lE";
   document.cookie = "username=admin";
   document.cookie = "windowOnline=true";
-  apiContextPath = "/api";
 }
 
 const instance = axios.create({
-  baseURL: `${apiContextPath}/sdata/rest`,
+  baseURL: `${process.env.REACT_APP_API}/sdata/rest`,
   timeout: 60000,
   validateStatus: function (status) {
     return status >= 200 && status < 300; // default
