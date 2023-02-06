@@ -1,0 +1,22 @@
+{
+  "id": "e7ac93f5-a94e-449b-9cdd-f9881698fe3f",
+  "type": "bigscreen",
+  "main": "main.c8e8680e.js",
+  "version": "2",
+  "process": true,
+  "props": {
+    "configuration": [
+      "data",
+      "style",
+      "other"
+    ],
+    "img": "custom_table.png",
+    "disableimg": "disabled_custom_table.png",
+    "name": "influxDB表格",
+    "className": "className-demo",
+    "vars": [
+      "tableName",
+      "deviceId"
+    ]
+  }
+}

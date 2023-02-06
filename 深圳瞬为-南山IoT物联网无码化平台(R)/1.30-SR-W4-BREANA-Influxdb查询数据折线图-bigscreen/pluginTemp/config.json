@@ -1,0 +1,26 @@
+{
+  "id": "e7ac93f5-a94e-439b-9cdd-f9881687fe2f",
+  "type": "bigscreen",
+  "main": "main.9d5edf22.js",
+  "version": "2",
+  "process": true,
+  "props": {
+    "configuration": [
+      "data",
+      "style",
+      "other"
+    ],
+    "img": "custom_table.png",
+    "disableimg": "disabled_custom_table.png",
+    "name": "React版本的演示Demo",
+    "className": "className-demo",
+    "vars": [
+      "seriesColor",
+      "tooltipBgColor",
+      "tooltipFontFamily",
+      "tooltipFontColor",
+      "tooltipFontSize",
+      "tableName"
+    ]
+  }
+}
