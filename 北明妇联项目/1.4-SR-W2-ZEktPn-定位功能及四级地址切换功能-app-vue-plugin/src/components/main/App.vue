@@ -1,12 +1,18 @@
 <template>
   <div :id="id" ref="app-secondary" class="app-secondary">
-    <el-button type="text" @click="popupShow" style="color: #000">全省<i class="el-icon-arrow-down"></i></el-button>
+    <el-button type="text" @click="popupShow" style="color: #000">{{ this.nowCityName || "全省" }}<i class="el-icon-arrow-down"></i></el-button>
     <van-popup
       v-model="popShow"
       position="top"
+      :close-on-click-overlay="false"
       :style="{ padding: '20px', top: this.customConfig.弹出层顶部距离 || '40px', width: 'calc(100% - 10px)', left: '5px', borderRadius: '5px' }"
     >
       <van-tabs v-model="activeName" @click="handleClick" color="rgba(50, 150, 250, 1)" swipeable>
+        <van-tab title="选择省" name="zero">
+          <el-button class="chooseCity" round v-for="(item, index) in provinceArray" :class="{ selectItem: item.select }" :key="index" size="small" @click="choseProvince(item)">{{
+            item.cityname
+          }}</el-button>
+        </van-tab>
         <van-tab title="选择市" name="first">
           <el-button class="chooseCity" round v-for="(item, index) in cityArray" :class="{ selectItem: item.select }" :key="index" size="small" @click="choseCity(item)">{{
             item.cityname
@@ -82,13 +88,15 @@ export default {
       id: "",
       popShow: false,
       dialogShow: false,
-      activeName: "first",
+      activeName: "zero",
+      provinceArray: [],
       cityArray: [],
       districtArray: [],
       streetArray: [],
       communityArray: [],
       requeryAddressInfo: {},
       nowCity: "",
+      nowCityName: "",
     };
   },
   async mounted() {
@@ -96,36 +104,47 @@ export default {
     if (window.localStorage.getItem("positionInfo")) {
       console.log(window.localStorage.getItem("positionInfo"));
       this.triggerEvent("positionChange", JSON.parse(window.localStorage.getItem("positionInfo")));
-      this.cityArray.forEach((item) => {
-        if (item.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).city?.cityname) {
-          item.select = true;
+      this.provinceArray.forEach((provItem) => {
+        if (provItem.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).province?.cityname) {
+          provItem.select = true;
           this.areaList.forEach((element) => {
-            if (element.parentcode == item.citycode) {
+            if (element.parentcode == provItem.citycode) {
               element.select = false;
-              this.districtArray.push(element);
+              this.cityArray.push(element);
             }
           });
-          this.districtArray.forEach((item2) => {
-            if (item2.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).district?.cityname) {
-              item2.select = true;
+          this.cityArray.forEach((item) => {
+            if (item.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).city?.cityname) {
+              item.select = true;
               this.areaList.forEach((element) => {
-                if (element.parentcode == item2.citycode) {
+                if (element.parentcode == item.citycode) {
                   element.select = false;
-                  this.streetArray.push(element);
+                  this.districtArray.push(element);
                 }
               });
-              this.streetArray.forEach((item3) => {
-                if (item3.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).street?.cityname) {
-                  item3.select = true;
+              this.districtArray.forEach((item2) => {
+                if (item2.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).district?.cityname) {
+                  item2.select = true;
                   this.areaList.forEach((element) => {
-                    if (element.parentcode == item3.citycode) {
+                    if (element.parentcode == item2.citycode) {
                       element.select = false;
-                      this.communityArray.push(element);
+                      this.streetArray.push(element);
                     }
                   });
-                  this.communityArray.forEach((item4) => {
-                    if (item4.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).community?.cityname) {
-                      item4.select = true;
+                  this.streetArray.forEach((item3) => {
+                    if (item3.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).street?.cityname) {
+                      item3.select = true;
+                      this.areaList.forEach((element) => {
+                        if (element.parentcode == item3.citycode) {
+                          element.select = false;
+                          this.communityArray.push(element);
+                        }
+                      });
+                      this.communityArray.forEach((item4) => {
+                        if (item4.cityname == JSON.parse(window.localStorage.getItem("positionInfo")).community?.cityname) {
+                          item4.select = true;
+                        }
+                      });
                     }
                   });
                 }
@@ -144,11 +163,14 @@ export default {
     async getaddress() {
       let res = await catalog();
       this.areaList = res.data.result;
-      this.areaList.forEach((item) => {
-        if (item.leval == 3) {
-          this.cityArray.push(item);
-        }
+      this.provinceArray = this.areaList.filter((item) => {
+        return item.leval == 4;
       });
+      // this.areaList.forEach((item) => {
+      //   if (item.leval == 3) {
+      //     this.cityArray.push(item);
+      //   }
+      // });
     },
     async getJSSDK() {
       let message = {
@@ -172,6 +194,26 @@ export default {
           fail(error) {},
         });
       });
+    },
+    //选择省
+    choseProvince(item, type) {
+      this.cityArray = [];
+      this.districtArray = [];
+      this.streetArray = [];
+      this.communityArray = [];
+      this.areaList.forEach((element) => {
+        if (element.parentcode == item.citycode) {
+          element.select = false;
+          this.cityArray.push(element);
+        }
+      });
+      this.provinceArray.forEach((element, index) => {
+        element.select = false;
+      });
+      item.select = true;
+      if (type) {
+        window.localStorage.setItem("provinceArray", JSON.stringify(this.provinceArray));
+      }
     },
     // 选择市
     choseCity(item, type) {
@@ -244,14 +286,17 @@ export default {
       // });
     },
     cancelChoose() {
-      if (JSON.parse(window.localStorage.getItem("positionInfo"))?.city) {
-        this.cityArray = JSON.parse(window.localStorage.getItem("cityArray"));
-        this.activeName = "second";
+      if (JSON.parse(window.localStorage.getItem("positionInfo"))?.province) {
+        this.provinceArray = JSON.parse(window.localStorage.getItem("provinceArray"));
+        this.activeName = "first";
       } else {
-        this.cityArray.forEach((item) => {
+        this.provinceArray.forEach((item) => {
           item.select = false;
         });
-        this.activeName = "first";
+        this.activeName = "zero";
+      }
+      if (JSON.parse(window.localStorage.getItem("positionInfo"))?.city) {
+        this.activeName = "second";
       }
       if (JSON.parse(window.localStorage.getItem("positionInfo"))?.district) {
         this.activeName = "third";
@@ -259,17 +304,24 @@ export default {
       if (JSON.parse(window.localStorage.getItem("positionInfo"))?.street) {
         this.activeName = "fourth";
       }
+      this.cityArray = JSON.parse(window.localStorage.getItem("cityArray") || "[]") || [];
       this.districtArray = JSON.parse(window.localStorage.getItem("districtArray") || "[]") || [];
       this.streetArray = JSON.parse(window.localStorage.getItem("streetArray") || "[]") || [];
       this.communityArray = JSON.parse(window.localStorage.getItem("communityArray") || "[]") || [];
       this.popShow = false;
     },
     sureChoose() {
+      window.localStorage.setItem("provinceArray", JSON.stringify(this.provinceArray));
       window.localStorage.setItem("cityArray", JSON.stringify(this.cityArray));
       window.localStorage.setItem("streetArray", JSON.stringify(this.streetArray));
       window.localStorage.setItem("districtArray", JSON.stringify(this.districtArray));
       window.localStorage.setItem("communityArray", JSON.stringify(this.communityArray));
       let message = {};
+      this.provinceArray.forEach((item) => {
+        if (item.select) {
+          message.province = item;
+        }
+      });
       this.cityArray.forEach((item) => {
         if (item.select) {
           message.city = item;
@@ -307,26 +359,32 @@ export default {
       });
     },
     // 地址解析
-    addressAnalysis() {
-      let message = {
-        address: "江苏省南京市夫子庙",
-      };
-      queryAddressByCoordinate(message).then((res) => {
-        console.log(res);
-      });
-    },
+    // addressAnalysis() {
+    //   let message = {
+    //     address: "江苏省南京市夫子庙",
+    //   };
+    //   queryAddressByCoordinate(message).then((res) => {
+    //     console.log(res);
+    //   });
+    // },
     // 确认
     confirmDialog() {
-      this.cityArray.forEach((item) => {
-        if (item.cityname == this.requeryAddressInfo.ad_info.city) {
-          item.select = true;
-          this.choseCity(item, 1);
-          this.districtArray.forEach((item2) => {
-            if (item2.cityname == this.requeryAddressInfo.ad_info.district) {
-              this.choseDistrict(item2, 1);
-              this.streetArray.forEach((item3) => {
-                if (item3.cityname == this.requeryAddressInfo.address_reference.town.title) {
-                  this.choseStreet(item3, 1);
+      this.provinceArray.forEach((element) => {
+        if (element.cityname == this.requeryAddressInfo.ad_info.province) {
+          element.select = true;
+          this.choseProvince(element, 1);
+          this.cityArray.forEach((item) => {
+            if (item.cityname == this.requeryAddressInfo.ad_info.city) {
+              item.select = true;
+              this.choseCity(item, 1);
+              this.districtArray.forEach((item2) => {
+                if (item2.cityname == this.requeryAddressInfo.ad_info.district) {
+                  this.choseDistrict(item2, 1);
+                  this.streetArray.forEach((item3) => {
+                    if (item3.cityname == this.requeryAddressInfo.address_reference.town.title) {
+                      this.choseStreet(item3, 1);
+                    }
+                  });
                 }
               });
             }
@@ -336,14 +394,13 @@ export default {
       this.sureChoose();
     },
     cancelDialog() {
+      this.provinceArray = [];
       this.cityArray = [];
       this.districtArray = [];
       this.streetArray = [];
       this.communityArray = [];
-      this.areaList.forEach((item) => {
-        if (item.leval == 3) {
-          this.cityArray.push(item);
-        }
+      this.provinceArray = this.areaList.filter((item) => {
+        return item.leval == 4;
       });
     },
     popupShow() {
@@ -359,14 +416,22 @@ export default {
      *
      */
     triggerEvent(type, payload) {
+      console.log(payload);
       if (payload.community) {
+        this.nowCityName = payload.community.cityname;
         payload = payload.community.citycode;
       } else if (payload.street) {
+        this.nowCityName = payload.street.cityname;
         payload = payload.street.citycode;
       } else if (payload.district) {
+        this.nowCityName = payload.district.cityname;
         payload = payload.district.citycode;
       } else if (payload.city) {
+        this.nowCityName = payload.city.cityname;
         payload = payload.city.citycode;
+      } else if (payload.province) {
+        this.nowCityName = payload.province.cityname;
+        payload = payload.province.citycode;
       }
       window.eventCenter?.triggerEvent &&
         window.eventCenter.triggerEvent(this.customConfig.componentId, type, {
@@ -428,7 +493,7 @@ export default {
   -webkit-align-items: unset !important;
   -webkit-justify-content: unset !important;
   justify-content: unset !important;
-  margin-right: 15px !important;
+  margin-right: 8px !important;
 }
 /deep/.van-tabs__line {
   width: 28px !important;

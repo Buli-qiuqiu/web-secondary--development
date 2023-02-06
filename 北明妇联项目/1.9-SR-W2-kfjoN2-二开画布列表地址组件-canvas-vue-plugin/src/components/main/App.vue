@@ -13,13 +13,22 @@
       >
         <path d="M1024 0l-447.7952 1024-118.016-458.1888L0 448.2048z" fill="#3798F5" p-id="6577"></path>
       </svg>
-      <span style="margin-left: 5px" :style="{ fontSize: this.configuration?.form?.fontSize || '14px', lineHeight: this.configuration?.form?.fontSize || '14px' }">{{
-        isNaN(this.getDistance(Number(this.value?.split(",")[0]), Number(this.value?.split(",")[1]), this.nowLat, this.nowLong))
-          ? "距我  米"
-          : this.getDistance(Number(this.value?.split(",")[0]), Number(this.value?.split(",")[1]), this.nowLat, this.nowLong)
-      }}</span>
+      <div v-show="showFlag">
+        <span
+          style="margin-left: 5px"
+          :key="keyFlag"
+          :style="{ fontSize: this.configuration?.form?.fontSize || '14px', lineHeight: this.configuration?.form?.fontSize || '14px' }"
+          >{{
+            this.getDistance(Number(this.valuePosition?.split(",")[0]), Number(this.valuePosition?.split(",")[1]), this.nowLat, this.nowLong) !=
+            this.getDistance(Number(this.valuePosition?.split(",")[0]), Number(this.valuePosition?.split(",")[1]), this.nowLat, this.nowLong)
+              ? "距我  米"
+              : this.getDistance(Number(this.valuePosition?.split(",")[0]), Number(this.valuePosition?.split(",")[1]), this.nowLat, this.nowLong)
+          }}</span
+        >
+      </div>
+      &nbsp; &nbsp; &nbsp;
       <span
-        style="margin-left: 15px; color: #3296fa; cursor: pointer"
+        style="color: #3296fa; cursor: pointer"
         @click="goMap()"
         :style="{ fontSize: this.configuration?.form?.fontSize || '14px', lineHeight: this.configuration?.form?.fontSize || '14px' }"
         >查看地图导航</span
@@ -45,11 +54,24 @@ export default {
     return {
       //必需，不可删除
       id: "",
-      nowLat: "",
-      nowLong: "",
+      nowLat: window.sessionStorage.getItem("getLocationLat") || "",
+      nowLong: window.sessionStorage.getItem("getLocationLong") || "",
+      valuePosition: "0,0",
+      keyFlag: 0,
+      showFlag: false,
     };
   },
   async mounted() {
+    window.clearInterval("timer");
+    let timer = window.setInterval(() => {
+      if (window.sessionStorage.getItem("getLocationLat")) {
+        this.nowLat = window.sessionStorage.getItem("getLocationLat");
+        this.nowLong = window.sessionStorage.getItem("getLocationLong");
+        this.showFlag = true;
+        window.clearInterval("timer");
+      }
+    }, 0);
+    this.valuePosition = this.value;
     await this.getJSSDK();
     //此方法封装了事件注册，不可删除
     this.mainInit(this);
@@ -60,36 +82,61 @@ export default {
       let message = {
         url: encodeURIComponent(window.location.href.split("#")[0]),
       };
-      let { data: res } = await jsSdkConfig(message);
-      window.wx.config({
-        debug: false, // 开启调试模式,调用的所有 api 的返回值会在客户端 alert 出来，若要查看传入的参数，可以在 pc 端打开，参数信息会通过 log 打出，仅在 pc 端时才会打印。
-        appId: res.appId, // 必填，公众号的唯一标识
-        timestamp: res.timestamp, // 必填，生成签名的时间戳
-        nonceStr: res.nonceStr, // 必填，生成签名的随机串
-        signature: res.signature, // 必填，签名
-        jsApiList: ["openLocation", "getLocation"], // 必填，需要使用的 JS 接口列表
-      });
-      window.wx.ready(() => {
-        console.log("ready");
-        window.wx.getLocation({
-          type: "gcj02",
-          success: (resp) => {
-            this.nowLat = resp.latitude;
-            this.nowLong = resp.longitude;
-          },
-          fail(error) {},
+      let res = "";
+      if (window.sessionStorage.getItem("jssdkconifgData")) {
+        res = JSON.parse(window.sessionStorage.getItem("jssdkconifgData"));
+      } else {
+        let data = await jsSdkConfig(message);
+        res = data.data;
+        window.sessionStorage.setItem("jssdkconifgData", JSON.stringify(res));
+        window.wx.config({
+          debug: false, // 开启调试模式,调用的所有 api 的返回值会在客户端 alert 出来，若要查看传入的参数，可以在 pc 端打开，参数信息会通过 log 打出，仅在 pc 端时才会打印。
+          appId: res.appId, // 必填，公众号的唯一标识
+          timestamp: res.timestamp, // 必填，生成签名的时间戳
+          nonceStr: res.nonceStr, // 必填，生成签名的随机串
+          signature: res.signature, // 必填，签名
+          jsApiList: ["openLocation", "getLocation"], // 必填，需要使用的 JS 接口列表
         });
-      });
+      }
+      if (window.sessionStorage.getItem("getLocationLat")) {
+        this.nowLat = window.sessionStorage.getItem("getLocationLat");
+        this.nowLong = window.sessionStorage.getItem("getLocationLong");
+        this.showFlag = true;
+      } else {
+        window.wx.ready(() => {
+          window.wx.getLocation({
+            type: "gcj02",
+            success: (resp) => {
+              this.nowLat = resp.latitude;
+              this.nowLong = resp.longitude;
+              window.sessionStorage.setItem("getLocationLat", resp.latitude);
+              window.sessionStorage.setItem("getLocationLong", resp.longitude);
+              this.keyFlag++;
+              this.showFlag = true;
+              this.$forceUpdate();
+            },
+            fail(error) {
+              this.getJSSDK();
+            },
+          });
+        });
+        window.wx.error((res) => {});
+      }
     },
     goMap() {
       window.wx.getLocation({
         type: "gcj02",
         success: (resp) => {
+          // alert(this.valuePosition);
+          // alert(`${JSON.stringify(resp)}`);
           this.nowLat = resp.latitude;
           this.nowLong = resp.longitude;
+          this.showFlag = true;
+          this.keyFlag++;
+          this.$forceUpdate();
           window.wx.openLocation({
-            latitude: Number(this.value?.split(",")[0]),
-            longitude: Number(this.value?.split(",")[1]),
+            latitude: Number(this.valuePosition?.split(",")[0]),
+            longitude: Number(this.valuePosition?.split(",")[1]),
             success(res) {},
             fail(error) {},
           });
@@ -114,12 +161,12 @@ export default {
       var distance = s;
       var distance_str = "";
 
-      if (parseInt(distance) >= 1) {
-        distance_str = distance.toFixed(1) + "千米";
+      distance_str = distance.toFixed(1) + "公里";
+      if (isNaN(distance)) {
+        return "距我 公里";
       } else {
-        distance_str = distance * 1000 + "米";
+        return "距我" + distance_str;
       }
-      return "距我" + distance_str;
     },
     /**
      * 封装的触发事件方法 必需，不可删除

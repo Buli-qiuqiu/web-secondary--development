@@ -24,9 +24,9 @@ import errorCode from './ERROR_zh_CN.json'
 import qs from 'querystringify';
 import './app.less';
 
-const { inviteUrl } = qs.parse(window.location.search);
+const { inviteUrl, redirect_url, returnUrl } = qs.parse(window.location.search);
 
-let inviteUrlStatus = !inviteUrl || inviteUrl === '/' || inviteUrl === '/login';
+let inviteUrlStatus = (!inviteUrl && !redirect_url && !returnUrl) || inviteUrl === '/' || inviteUrl === '/login' || redirect_url === '/' || redirect_url === '/login' || returnUrl === '/' || returnUrl === '/login';
 
 let getAfterGetToken = '';
 let phone = '';

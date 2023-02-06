@@ -1,0 +1,197 @@
+// 最外层
+.outermost {
+   width: 100%;
+   height: 100%;
+   // 个人信息
+   .user_box {
+      height: 194px;
+      background: url("../../assets/个人信息-背景图.png") no-repeat;
+      background-size: 100% 100%;
+      padding: 0 13px;
+   }
+   // 用户信息
+   .user_info {
+      height: 78px;
+      padding-top: 24px;
+      margin-bottom: 10px;
+      display: flex;
+      // 头像
+      .info_head_portrait {
+         height: 100%;
+         margin-right: 10px;
+         img {
+            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+         }
+      }
+      // 姓名、城市
+      .info_name_city {
+         overflow: hidden;
+         height: 100%;
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+         margin-right: 7px;
+         //  姓名
+         .info_name {
+            min-width: 60px;
+            max-width: 80px;
+            height: 21px;
+            font-size: 15px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: bolder;
+            color: #333333;
+            line-height: 21px;
+            padding-top: 3px;
+         }
+         //  城市
+         .info_city {
+            width: 61px;
+            height: 18px;
+            font-size: 13px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #666666;
+            line-height: 18px;
+            padding-bottom: 4px;
+         }
+      }
+      // 切换用户
+      .info_change_user {
+         height: 100%;
+         img {
+            width: 100%;
+            margin-top: -34px;
+         }
+         margin-right: 7px;
+      }
+      // 积分
+      .info_integral {
+         height: 100%;
+         padding-top: 2px;
+         margin-right: 20px;
+         // 内容盒子
+         .integral_box {
+            min-width: 97px;
+            height: 24px;
+            background: url("../../assets/个人信息-积分.png") no-repeat;
+            background-size: 100% 100%;
+            // 内容文本
+            .integral_number {
+               color: #ad7c13;
+               font-family: YouSheBiaoTiHei;
+               font-size: 12px;
+               padding: 3px 29px 0 33px;
+            }
+         }
+         img {
+            width: 97px;
+            height: 24px;
+         }
+      }
+      // 编辑资料
+      .info_edit_button {
+         position: absolute;
+         right: 14px;
+         height: 54px;
+         line-height: 54px;
+         .van-button {
+            padding: 0;
+            width: 80px;
+            height: 30px;
+            background: rgba(50, 150, 250, 0.14);
+            border-radius: 15px;
+            border: 1px solid #3296fa;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #3296fa;
+         }
+      }
+   }
+   // 请登录
+   .please_login {
+      width: 100%;
+      height: 60px;
+      line-height: 60px;
+      font-size: 16px;
+      font-weight: bolder;
+      margin-left: 3px;
+      color: #333333;
+   }
+   // 用户菜单
+   .user_menu {
+      position: relative;
+      width: 100%;
+      height: 100px;
+      overflow: hidden;
+      // 左侧菜单
+      .menu_left {
+         width: 100%;
+         height: 75px;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         text-align: center;
+         div {
+            width: 78px;
+            font-size: 13px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            color: #333333;
+         }
+         .menu_box {
+            margin: 0 5px;
+            margin-top: 20px;
+            img {
+               margin-bottom: 4px;
+               width: 52px;
+               height: 38px;
+            }
+         }
+      }
+      .swiper-slide {
+         margin-left: -3px;
+      }
+      // 分页器整体
+      .swiper-pagination {
+         top: 60px;
+      }
+      // 轮播分页
+      .swiper-pagination-bullet {
+         width: 13px;
+         height: 4px;
+         opacity: 0.4;
+         margin: 0 !important;
+         border-radius: 2px;
+         background: #439ffb;
+      }
+      // 选中分页
+      .swiper-pagination-bullet-active {
+         background: #fff;
+         opacity: 1;
+      }
+   }
+   // 用户弹出层
+   .user_popup {
+      // 图片
+      .user_account {
+         border-radius: 50%;
+         width: 35px;
+         height: 35px;
+         margin-right: 10px;
+      }
+      // 标题
+      .van-cell__title {
+         display: flex;
+         align-items: center;
+      }
+      .van-cell-group {
+         padding-top: 10px;
+      }
+      .van-hairline--top-bottom::after,
+      .van-hairline-unset--top-bottom::after {
+         border: none;
+      }
+   }
+}

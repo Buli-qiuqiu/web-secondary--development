@@ -1,0 +1,18 @@
+{
+  "id": "44210ff9-6465-40e7-96c3-b0d6c67a5e0b",
+  "type": "app",
+  "main": "app.a494b2cf.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": []
+  },
+  "configuration": true,
+  "requirement-number": "SR-W6-ycyHl4",
+  "requirement-name": "个人信息组件"
+}

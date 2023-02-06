@@ -13,7 +13,14 @@
           v-for="(item, index) in pointListApp"
           :label="item.name"
           :key="index"
-        ></el-checkbox>
+        >
+          <span class="check-lebel" :title="item.name">{{ item.name }}</span>
+          <img
+            v-if="item.imgList[0]?.url"
+            :src="item.imgList[0]?.url"
+            class="check-icon"
+          />
+        </el-checkbox>
       </el-checkbox-group>
     </div>
     <el-dialog
@@ -395,15 +402,35 @@ export default {
       // console.log("this.pointListApp", this.pointListApp);
       // console.log("this.POICollection", this.POICollection);
       // 图层列表
+      const dataSource = new Cesium.CustomDataSource();
+      let entities = [];
       this.pointListApp.forEach((item, index) => {
-        let imgUrl = item.imgList[0]?.url;
-        let { LongitudeKey, LatitudeKey, name } = item;
-        // console.log('imgUrl', imgUrl);
-        const dataSource = new Cesium.CustomDataSource(name);
+        let {
+          LongitudeKey,
+          LatitudeKey,
+          name,
+          imgList = [],
+          showCondition = [],
+        } = item;
+        let imgUrl = imgList[0]?.url;
 
+        // 条件设值点位过滤
+        let points = this.POICollection || [];
+        if (showCondition.length) {
+          points = this.POICollection.filter((item) => {
+            let check = true;
+            showCondition.forEach((rule) => {
+              const { column, value } = rule || {};
+              if (column && item[column] !== value) {
+                check = false;
+              }
+            });
+            return check;
+          });
+        }
         // 分析仪数据
-        this.POICollection.forEach((point) => {
-          dataSource.entities.add({
+        points.forEach((point) => {
+          entities.push({
             position: Cesium.Cartesian3.fromDegrees(
               point[LongitudeKey],
               point[LatitudeKey],
@@ -469,54 +496,63 @@ export default {
             },
             pointIndex: index,
             data: point,
+            name,
           });
         });
-
-        // 点位聚合
-        dataSource.clustering.enabled = true;
-        dataSource.clustering.pixelRange = 15;
-        dataSource.clustering.minimumClusterSize = 2;
-
-        dataSource.clustering.clusterEvent.addEventListener(function (
-          clusteredEntities,
-          cluster
-        ) {
-          const len = clusteredEntities.length;
-          cluster.label.show = true;
-          cluster.label.pixelOffset = new Cesium.Cartesian2(-10, -8);
-          cluster.label.font = "20px Microsoft YaHei";
-          cluster.label.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
-          cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-          cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-          cluster.label.outlineWidth = 2;
-          cluster.label.outlineColor = Cesium.Color.WHITE;
-
-          cluster.billboard.show = true;
-          cluster.billboard.width = 48;
-          cluster.billboard.height = 72;
-          // cluster.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 1)
-          // cluster.billboard.image = _that.combineIconAndLabel(
-          //   len >= 50 ? red3d : len >= 10 ? yellow3d : green3d,
-          //   clusteredEntities.length
-          // );
-          if (clusteredEntities.length >= 10) {
-            cluster.billboard.image = red3d;
-          } else if (clusteredEntities.length >= 5) {
-            cluster.billboard.image = yellow3d;
-          } else {
-            cluster.billboard.image = green3d;
-          }
-        });
-
-        this.viewer.dataSources.add(dataSource);
-        this.checkList.push(name);
       });
+      // 记录全部的点位
+      dataSource._entities = entities;
+
+      // 点位聚合
+      dataSource.clustering.enabled = true;
+      dataSource.clustering.pixelRange = 15;
+      dataSource.clustering.minimumClusterSize = 2;
+
+      dataSource.clustering.clusterEvent.addEventListener(function (
+        clusteredEntities,
+        cluster
+      ) {
+        const len = clusteredEntities.length;
+        cluster.label.show = true;
+        cluster.label.pixelOffset = new Cesium.Cartesian2(-14, -8);
+        cluster.label.font = "26px Microsoft YaHei";
+        cluster.label.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
+        cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+        cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+        cluster.label.outlineWidth = 2;
+        cluster.label.outlineColor = Cesium.Color.WHITE;
+
+        cluster.billboard.show = true;
+        cluster.billboard.width = 48;
+        cluster.billboard.height = 72;
+
+        cluster.billboard._clusteredEntities = clusteredEntities;
+        // cluster.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 1)
+        // cluster.billboard.image = _that.combineIconAndLabel(
+        //   len >= 50 ? red3d : len >= 10 ? yellow3d : green3d,
+        //   clusteredEntities.length
+        // );
+        if (clusteredEntities.length >= 10) {
+          cluster.billboard.image = red3d;
+        } else if (clusteredEntities.length >= 5) {
+          cluster.billboard.image = yellow3d;
+        } else {
+          cluster.billboard.image = green3d;
+        }
+      });
+
+      // 点位图层默认为不展示
+      // this.checkList.push(name);
+      // dataSource.show = false;
+
+      this.viewer.dataSources.add(dataSource);
 
       // 点击弹窗
       this.handler.setInputAction(function (event) {
         const pickedLabel = _that.viewer.scene.pick(event.position);
         if (Cesium.defined(pickedLabel)) {
-          const ids = pickedLabel.id;
+          const { id, primitive: { _clusteredEntities } = {} } = pickedLabel;
+          const ids = id || _clusteredEntities;
           if (!ids) return;
           let pointIndex = ids._pointIndex || 0;
           let pointData = [{ ...ids._data, _index: 1 }];
@@ -621,10 +657,16 @@ export default {
         res[name] = showlist.includes(name);
         return res;
       }, {});
-      _dataSources.forEach((dataSource) => {
-        const { name } = dataSource;
-        dataSource.show = statusMap[name];
-      });
+      if (_dataSources[0]) {
+        const { _entities } = _dataSources[0];
+        const newEntities = _entities.filter(
+          ({ name } = {}) => statusMap[name]
+        );
+        _dataSources[0].entities.removeAll();
+        newEntities.forEach((entity) => {
+          _dataSources[0].entities.add(entity);
+        });
+      }
     },
     combineIconAndLabel(image, label) {
       // if (imgMap[label]) return imgMap[label];
@@ -760,12 +802,26 @@ export default {
   top: 0;
   right: 0;
   z-index: 1;
-  width: 100px;
+  width: 120px;
   background: rgba(0, 0, 0, 0.3);
   padding: 10px;
   margin: 10px;
   .el-checkbox__label {
     color: #fff;
   }
+}
+.check-lebel {
+  width: 70px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+.check-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 </style>
