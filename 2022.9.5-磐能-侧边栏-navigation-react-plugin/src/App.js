@@ -22,33 +22,26 @@ const formatData = (data, nameList) => {
 };
 
 const App = (props) => {
+  console.log(props, 25);
   const [openKeys, setOpenKeys] = useState([]);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState(mockData);
   const [collapsed, setCollapsed] = useState(false);
-  const [rootSubmenuKeys, setRootSubmenuKeys] = useState([
-    "acff4125-129f-fec6-3098-0ecb1c7ecf61",
-    "2ce57bcb-fdf8-524e-c70b-bc40c7db67bb",
-    "c372b864-6fad-9949-fe3b-f4fb75b34898",
-  ]);
-  const [defaultSelectedKeys, seDefaultSelectedKeys] = useState([
-    "5d1906ed-7de7-5984-cb4d-8e66019edceb",
-  ]);
-  const [selectedKeys, setSelectedKeys] = useState([
-    "5d1906ed-7de7-5984-cb4d-8e66019edceb",
-  ]);
+  const [rootSubmenuKeys, setRootSubmenuKeys] = useState(["acff4125-129f-fec6-3098-0ecb1c7ecf61", "2ce57bcb-fdf8-524e-c70b-bc40c7db67bb", "c372b864-6fad-9949-fe3b-f4fb75b34898"]);
+  const [defaultSelectedKeys, seDefaultSelectedKeys] = useState(["5d1906ed-7de7-5984-cb4d-8e66019edceb"]);
+  const [selectedKeys, setSelectedKeys] = useState(["5d1906ed-7de7-5984-cb4d-8e66019edceb"]);
   const [defaultOpenKeys, setDefaultOpenKeys] = useState([]);
   const [mouseItem, setMouseItem] = useState(null);
   const [keys, setKeys] = useState(null);
 
   const { customConfig } = props;
-  const { 首页名称: homePage = "首页", 隐藏菜单id: names = "",隐藏展开菜单id:hideNames="" } = customConfig;
- const hidenNameList = hideNames.split(",");
+  const { 首页名称: homePage = "首页", 隐藏菜单id: names = "", 隐藏展开菜单id: hideNames = "" } = customConfig;
+  const hidenNameList = hideNames.split(",");
   useEffect(() => {
     const data = appService.getMenuData() || mockData;
     // const data = mockData;
     const nameList = names.split(",");
-    
+
     formatData(data, nameList);
     setData(data);
 
@@ -57,34 +50,37 @@ const App = (props) => {
       if (item?.children?.length > 0) arr.push(item.id);
     });
     setRootSubmenuKeys(arr);
-
-    if (window.PubSub) {
-      window.PubSub.subscribe("collapsed", (_, data) => {
-        setCollapsed(data);
-      });
-      window.PubSub.subscribe("menuClick", (_, { key }) => {
-        initData(key?.split("#")[0], data);
-      });
+    // var newEvent = new Event("falseMenuClick", { bubbles: true, cancelable: true, composed: true });
+    window.addEventListener("MenuClick", (e) => {
+      console.log("进来了", collapsed);
+      setCollapsed(e.detail.tf);
+    });
+    if (window.APP_SDK_DATA) {
+      // window.PubSub.subscribe("collapsed", (_, data) => {
+      //   setCollapsed(data);
+      // });
+      setCollapsed(window.APP_SDK_DATA.store.appMenucollapsed);
+      // window.PubSub.subscribe("menuClick", (_, { key }) => {
+      // initData(key?.split("#")[0], data);
+      // });
     }
     const { menuId } = qs.parse(window.location.search);
     if (menuId) {
       const key = menuId.split("#")[0];
       initData(key, data);
     }
-    const menuRefVisible = document.getElementById('menuRef');
-    nodeVisible(menuRefVisible)
+    const menuRefVisible = document.getElementById("menuRef");
+    nodeVisible(menuRefVisible);
   }, []);
-
-  const nodeVisible = (menuRefVisible) =>{
-    if (!menuRefVisible.parentNode) return
+  const nodeVisible = (menuRefVisible) => {
+    if (!menuRefVisible.parentNode) return;
     if (menuRefVisible.parentNode.tagName == "ASIDE") {
-      menuRefVisible.parentNode.style.overflow = 'visible'
+      menuRefVisible.parentNode.style.overflow = "visible";
       return false;
-    }else {
-      nodeVisible(menuRefVisible.parentNode)
+    } else {
+      nodeVisible(menuRefVisible.parentNode);
     }
-  }
-
+  };
   const initData = (key, formatData, type = 1) => {
     formatData.forEach((item) => {
       if (item?.children?.length > 0) {
@@ -103,9 +99,7 @@ const App = (props) => {
             setSelectedKeys([selectedObj["parent_id"]]);
             if (selectedObj["parent_id"]) {
               data.forEach((k) => {
-                const sameChild = (k.children || []).find(
-                  (m) => m.id === selectedObj["parent_id"]
-                );
+                const sameChild = (k.children || []).find((m) => m.id === selectedObj["parent_id"]);
                 if (k.id === selectedObj["parent_id"] || sameChild) {
                   setDefaultOpenKeys([k.id]);
                   setOpenKeys([k.id]);
@@ -143,7 +137,7 @@ const App = (props) => {
   };
 
   const onOpenChange = (keys) => {
-    console.log('keys',keys);
+    console.log("keys", keys);
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
       setOpenKeys(keys);
@@ -170,14 +164,7 @@ const App = (props) => {
     if (icon.includes("base64")) {
       return <img src={icon} className="menu-img-icon" />;
     } else {
-      return (
-        <ShowIcon
-          icon_type={JSON.parse(icon).type}
-          name={JSON.parse(icon).url}
-          color={JSON.parse(icon).color}
-          bgColor={JSON.parse(icon).bgColor}
-        />
-      );
+      return <ShowIcon icon_type={JSON.parse(icon).type} name={JSON.parse(icon).url} color={JSON.parse(icon).color} bgColor={JSON.parse(icon).bgColor} />;
     }
   };
 
@@ -185,17 +172,13 @@ const App = (props) => {
     let key1 = key?.split("#")[0];
     initData(key1, data);
     setKeys(key1);
-    if (
-      window.PubSub &&
-      (it?.children?.length === 0 || !it?.children|| hidenNameList.includes(it.id)) &&
-      key1 !== keys
-    ) {
+    if (window.PubSub && (it?.children?.length === 0 || !it?.children || hidenNameList.includes(it.id)) && key1 !== keys) {
       window.PubSub.publish("menuClick", { key, isSubMenu });
     }
   };
 
   const onMouseOver = (it) => {
-    if(hidenNameList.includes(it.id)){
+    if (hidenNameList.includes(it.id)) {
       return;
     }
     if (it?.children?.length > 0) {
@@ -222,8 +205,7 @@ const App = (props) => {
                 className="menuTitle"
                 onClick={() =>
                   handlePanNengClick({
-                    key:
-                      (item.type === 1 ? "system" : item.id) + "#" + item.type,
+                    key: (item.type === 1 ? "system" : item.id) + "#" + item.type,
                     isSubMenu: true,
                   })
                 }
@@ -232,17 +214,7 @@ const App = (props) => {
                   {item.icon ? (
                     handleIcon(item)
                   ) : (
-                    <Icon
-                      type={
-                        item.type === 1
-                          ? "icon-xitongshezhi"
-                          : item.type === 2
-                          ? "icon-mulu"
-                          : item.name === homePage
-                          ? "icon-home"
-                          : "icon-yemian_1"
-                      }
-                    />
+                    <Icon type={item.type === 1 ? "icon-xitongshezhi" : item.type === 2 ? "icon-mulu" : item.name === homePage ? "icon-home" : "icon-yemian_1"} />
                   )}
                   <span className="name" title={item.name}>
                     {item.name}
@@ -270,18 +242,18 @@ const App = (props) => {
                   {it.icon ? (
                     handleIcon(it)
                   ) : (
-                      // <Icon
-                      //   type={
-                      //     it.type === 1
-                      //       ? "icon-xitongshezhi"
-                      //       : it.type === 2
-                      //         ? "icon-mulu"
-                      //         : it.name === homePage
-                      //           ? "icon-home"
-                      //           : "icon-yemian_1"
-                      //   }
-                      // />
-                      <Icon style={{width: "19px"}} type=""/>
+                    // <Icon
+                    //   type={
+                    //     it.type === 1
+                    //       ? "icon-xitongshezhi"
+                    //       : it.type === 2
+                    //         ? "icon-mulu"
+                    //         : it.name === homePage
+                    //           ? "icon-home"
+                    //           : "icon-yemian_1"
+                    //   }
+                    // />
+                    <Icon style={{ width: "19px" }} type="" />
                   )}
                   {it.children?.length > 0 && !hidenNameList.includes(it.id) ? (
                     <>
@@ -297,49 +269,24 @@ const App = (props) => {
                           {">"}
                         </span>
                       </span>
-                      <div
-                        className="hoverdiv"
-                        style={
-                          mouseItem === it.id && visible
-                            ? { display: "block" }
-                            : { display: "none" }
-                        }
-                      >
+                      <div className="hoverdiv" style={mouseItem === it.id && visible ? { display: "block" } : { display: "none" }}>
                         <div className="hoverHeader">
                           <span className="hoverBox"></span>
                           <span style={{ marginLeft: 10 }}>{it.name}</span>
                         </div>
                         <div className="divider"></div>
-                        <div
-                          className={
-                            it.children.length < 4 ? "hoverBody1" : "hoverBody"
-                          }
-                        >
+                        <div className={it.children.length < 4 ? "hoverBody1" : "hoverBody"}>
                           {it.children.map((item) => (
                             <div
                               onClick={() =>
                                 handlePanNengClick({
-                                  key:
-                                    (item.type === 1 ? "system" : item.id) +
-                                    "#" +
-                                    item.type,
+                                  key: (item.type === 1 ? "system" : item.id) + "#" + item.type,
                                 })
                               }
-                              key={
-                                (item.type === 1 ? "system" : item.id) +
-                                "#" +
-                                item.type
-                              }
-                              className={
-                                it.children.length < 4
-                                  ? "linkText1"
-                                  : "linkText"
-                              }
+                              key={(item.type === 1 ? "system" : item.id) + "#" + item.type}
+                              className={it.children.length < 4 ? "linkText1" : "linkText"}
                               style={{
-                                width:
-                                  it.children.length < 4
-                                    ? `${100 / it.children.length}%`
-                                    : "25%",
+                                width: it.children.length < 4 ? `${100 / it.children.length}%` : "25%",
                               }}
                             >{`- ${item.name}`}</div>
                           ))}
@@ -356,10 +303,7 @@ const App = (props) => {
             ))}
           </SubMenu>
         );
-      } else if (
-        (!item.children || item.children?.length === 0) &&
-        item.isDelete !== 0
-      ) {
+      } else if ((!item.children || item.children?.length === 0) && item.isDelete !== 0) {
         return (
           item.name === homePage && (
             <Menu.Item
@@ -375,17 +319,7 @@ const App = (props) => {
                 {item.icon ? (
                   handleIcon(item)
                 ) : (
-                  <Icon
-                    type={
-                      item.type === 1
-                        ? "icon-xitongshezhi"
-                        : item.type === 2
-                        ? "icon-mulu"
-                        : item.name === homePage
-                        ? "icon-home"
-                        : "icon-yemian_1"
-                    }
-                  />
+                  <Icon type={item.type === 1 ? "icon-xitongshezhi" : item.type === 2 ? "icon-mulu" : item.name === homePage ? "icon-home" : "icon-yemian_1"} />
                 )}
                 <span className="name" title={item.name}>
                   {item.name}
@@ -405,26 +339,13 @@ const App = (props) => {
             key={item.id}
             onTitleClick={() => onOpenChange1(item.id)}
             title={
-              <span
-                className="menuTitle"
-                onClick={() => onOpenChange1(item.id)}
-              >
+              <span className="menuTitle" onClick={() => onOpenChange1(item.id)}>
                 <Tooltip title={item.name} placement="right">
                   <span>
                     {item.icon ? (
                       handleIcon(item)
                     ) : (
-                      <Icon
-                        type={
-                          item.type === 1
-                            ? "icon-xitongshezhi"
-                            : item.type === 2
-                            ? "icon-mulu"
-                            : item.name === homePage
-                            ? "icon-home"
-                            : "icon-yemian_1"
-                        }
-                      />
+                      <Icon type={item.type === 1 ? "icon-xitongshezhi" : item.type === 2 ? "icon-mulu" : item.name === homePage ? "icon-home" : "icon-yemian_1"} />
                     )}
                   </span>
                 </Tooltip>
@@ -432,32 +353,16 @@ const App = (props) => {
             }
           ></SubMenu>
         );
-      } else if (
-        (!item.children || item.children?.length === 0) &&
-        item.isDelete !== 0
-      ) {
+      } else if ((!item.children || item.children?.length === 0) && item.isDelete !== 0) {
         return (
           item.name === homePage && (
-            <Menu.Item
-              key={item.id}
-              className={item.name === homePage && "first"}
-            >
+            <Menu.Item key={item.id} className={item.name === homePage && "first"}>
               <Tooltip title={homePage} placement="right">
                 <span>
                   {item.icon ? (
                     handleIcon(item)
                   ) : (
-                    <Icon
-                      type={
-                        item.type === 1
-                          ? "icon-xitongshezhi"
-                          : item.type === 2
-                          ? "icon-mulu"
-                          : item.name === homePage
-                          ? "icon-home"
-                          : "icon-yemian_1"
-                      }
-                    />
+                    <Icon type={item.type === 1 ? "icon-xitongshezhi" : item.type === 2 ? "icon-mulu" : item.name === homePage ? "icon-home" : "icon-yemian_1"} />
                   )}
                 </span>
               </Tooltip>
@@ -488,7 +393,7 @@ const App = (props) => {
       )}
     </div>
   ) : (
-      <div id="menuRef" className="PNDL_menu">
+    <div id="menuRef" className="PNDL_menu">
       {defaultSelectedKeys.length > 0 && (
         <Menu
           mode="inline"

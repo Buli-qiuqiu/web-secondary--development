@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
-import { queryAssetById } from '../../api/asset';
+import { queryAssetById, getUser } from '../../api/asset';
 import { Modal } from "antd";
 import "./index.less";
 import moment from "moment";
 
 import { BellOutlined } from '@ant-design/icons'
+import { async } from "q";
 
 
 
@@ -14,7 +15,7 @@ const List = ({ configuration }) => {
   const outBoxRef = useRef(null)
   const [config, setConfig] = useState({});
   // const [asset, setAsset] = useState('85c18452-aced-4647-a387-5eacc7c90071')
-  const [asset, setAsset] = useState('85c18452-aced-4647-a387-5eacc7c90071')
+  const [asset, setAsset] = useState('016446d4-84eb-8d52-23a2-8185956b990a')
   const [assetInfo, setAssetInfo] = useState([])
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modelConfig, setModelConfig] = useState({})
@@ -51,18 +52,20 @@ const List = ({ configuration }) => {
 
   // }
   const mouseEnter = () => {
+    let config = JSON.parse(configuration || "{}")
     if (smallwidth > bigwidth) {
       let obj = {}
-      obj['animation'] = `swiper ${allLength}s linear infinite`
+      obj['animation'] = `swiper ${config.speed}s linear infinite`
       obj['animationPlayState'] = 'paused'
       setDonghua(obj)
 
     }
   }
   const mouseOut = () => {
+    let config = JSON.parse(configuration || "{}")
     if (smallwidth > bigwidth) {
       let newobj = {}
-      newobj['animation'] = `swiper ${allLength}s linear infinite`
+      newobj['animation'] = `swiper ${config.speed}s linear infinite`
       setDonghua(newobj)
 
     }
@@ -71,9 +74,18 @@ const List = ({ configuration }) => {
 
   }
 
-  const getAssetsInfo = (id) => {
+  const getAssetsInfo = async (id) => {
+    let data
+    try {
+      data = await getUser()
+    } catch (error) {
+      data = { data: {} }
+    }
+    let officeId = data.data.officeId
+    // console.log(data, '------user');
     queryAssetById(id).then(res => {
-      // console.log('res==', res);
+      console.log('res==', res);
+      let config = JSON.parse(configuration || "{}")
       let headerList = []
       if (res.data.length) {
         res.data[0].forEach((item, index) => {
@@ -94,9 +106,9 @@ const List = ({ configuration }) => {
       })
 
       arr2 = arr2.filter(item => {
-        return item.notify_state === '已发布'
+        return item.notify_state === '已发布' && (item?.concat_office_id?.split(',').indexOf(officeId) != -1)
       })
-      // console.log(arr2);
+      console.log('====dd', arr2);
       //无缝滚动的数据
       setAssetInfo(arr2)
       let contentWidth = headerRef.current.offsetWidth
@@ -114,7 +126,8 @@ const List = ({ configuration }) => {
         setAssetInfo(newList)
         setAllLength(newList.length)
         setDonghua({
-          animation: `swiper ${newList.length * 1}s linear infinite`
+          // animation: `swiper ${newList.length * 1}s linear infinite`
+          animation: `swiper ${config.speed * 1}s linear infinite`
         })
 
 
@@ -122,7 +135,7 @@ const List = ({ configuration }) => {
       }
 
     }).catch(err => {
-      // console.log(err);
+      console.log('err========', err);
     })
   }
   useEffect(() => {
@@ -130,6 +143,7 @@ const List = ({ configuration }) => {
       setConfig(JSON.parse(configuration || "{}"));
       let conf = JSON.parse(configuration || "{}")
       getAssetsInfo(conf.assetId ? conf.assetId : asset)
+      console.log('asset:', asset);
     } catch (error) {
       console.error("configuration解析错误", error);
     }
@@ -163,7 +177,7 @@ const List = ({ configuration }) => {
 
 
     </div>
-      <Modal title={modelConfig.notice_title} centered bodyStyle={{ height: '25.1%', borderRadius: '6px' }} width="25.7%" footer={null} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+      <Modal className="two_nans" title={modelConfig.notice_title} centered bodyStyle={{ height: '25.1%', borderRadius: '6px' }} width="25.7%" footer={null} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
         <div className="bgBox" >
           <div className="titleSpan">
             {modelConfig.notice_title}

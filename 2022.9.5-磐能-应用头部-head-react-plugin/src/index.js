@@ -80,8 +80,8 @@ if (process.env.NODE_ENV !== "production") {
   if (!window.CUSTOM_PLUGIN) {
     window.CUSTOM_PLUGIN = new Map();
   }
-
   window.CUSTOM_PLUGIN.set(process.env.CUSTOM_PLUGIN_ID, (dom, props) => {
+    console.log(props,84);
     ReactDOM.render(<App {...props} />, dom);
   });
 }

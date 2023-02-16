@@ -1,7 +1,7 @@
 {
   "id": "47c6467f-489e-4fb3-a903-74c25f9586a2",
   "type": "head",
-  "main": "main.0a8c8289.js",
+  "main": "main.4e4165cd.js",
   "version": "2",
   "props": {
     "type": "head",
@@ -10,12 +10,6 @@
     "loadStyle": 0,
     "lib": [],
     "css_script": [],
-    "customconf": [
-      {
-        "name": "配置地址",
-        "type": "editor"
-      },
-      "测试"
-    ]
+    "customconf": []
   }
 }

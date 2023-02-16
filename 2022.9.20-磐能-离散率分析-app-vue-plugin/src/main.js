@@ -3,7 +3,7 @@ import App from "./App.vue";
 import { sysVariables, appVariables, customConfig } from "@/components/mockData.js";
 
 // 引入参考https://element.eleme.cn/#/zh-CN/component/quickstart
-import { Button, DatePicker, Table, TableColumn, RadioGroup, RadioButton, Message, Pagination } from "element-ui";
+import { Button, DatePicker, Table, TableColumn, RadioGroup, RadioButton, Message, Pagination, Loading } from "element-ui";
 
 Vue.use(Button);
 Vue.use(DatePicker);
@@ -13,6 +13,7 @@ Vue.use(RadioGroup);
 Vue.use(RadioButton);
 Vue.prototype.$message = Message;
 Vue.use(Pagination);
+Vue.use(Loading.directive);
 
 if (process.env.NODE_ENV !== "production") {
    window.eventCenter = {

@@ -1,21 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  Breadcrumb,
-  Modal,
-  Form,
-  Input,
-  Button,
-  Avatar,
-  Badge,
-  Dropdown,
-  Menu,
-  Table,
-} from "antd";
-import {
-  LockOutlined,
-  FullscreenOutlined,
-  CaretDownOutlined,
-} from "@ant-design/icons";
+import { Select, Breadcrumb, Modal, Form, Input, Button, Avatar, Badge, Dropdown, Menu, List, Table } from "antd";
+import moment from "moment";
+import { MenuUnfoldOutlined, MenuFoldOutlined, LockOutlined, FullscreenOutlined, CaretDownOutlined } from "@ant-design/icons";
 import * as ReportingService from "./api/asset";
 import appService from "@njsdata/app-sdk";
 import { mockData } from "./mock";
@@ -24,11 +10,11 @@ import Base64 from "Base64";
 import logo from "./2.png";
 import "./app.less";
 const count = 6;
-// const Cookie =
-//   "eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY2MDYzNzQyMDE2OSwidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.k040f5ITc7zlFmxdmozdcXWjpvST6tIQPbi51-Na8mY";
+const pageNum = 1;
+const Cookie = "eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY2MDYzNzQyMDE2OSwidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.k040f5ITc7zlFmxdmozdcXWjpvST6tIQPbi51-Na8mY";
 // 格式化数据增加面包屑数据
 const formatData = (data, topData = []) => {
-  data.forEach(item => {
+  data.forEach((item) => {
     let arr = topData.concat([item.name]);
     item.breadCrumbItem = arr;
     if (item?.children?.length > 0) {
@@ -37,7 +23,7 @@ const formatData = (data, topData = []) => {
   });
   return data;
 };
-const sortBy = field => {
+const sortBy = (field) => {
   return (x, y) => {
     return Date.parse(new Date(y[field])) - Date.parse(new Date(x[field]));
   };
@@ -46,7 +32,7 @@ let websocket;
 let timer;
 // 平级树形数据
 const flatArr = (menuData, initArr = []) => {
-  menuData.forEach(item => {
+  menuData.forEach((item) => {
     initArr.push({
       id: item.id,
       label: item.name,
@@ -59,13 +45,13 @@ const flatArr = (menuData, initArr = []) => {
   });
   return initArr;
 };
-const App = props => {
+const App = (props) => {
   const [collapsed, setCollapsed] = useState(false);
   const [key, setKey] = useState("453601f6-b5ea-a393-a5e0-e0e243cdb62b");
   const [menuData, setMenuData] = useState([]);
   const [breadCrumbs, setBreadCrumbs] = useState([]);
-  // const [visible, setVisible] = useState(false);
-  // const [value, setValue] = useState(undefined);
+  const [visible, setVisible] = useState(false);
+  const [value, setValue] = useState(undefined);
   const [options, setOptions] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,6 +89,23 @@ const App = props => {
       ],
     });
     setInfoCount(res.totalCount);
+    if (window.localStorage.getItem("wanningInfoTop")) {
+      console.log(window.localStorage.getItem("wanningInfoTop"), JSON.stringify(res.totalCount));
+      if (JSON.stringify(res.totalCount) !== window.localStorage.getItem("wanningInfoTop")) {
+        window.localStorage.setItem("wanningInfoTop", JSON.stringify(res.totalCount));
+        if (!infoModalVisible && res.totalCount > 0) {
+          setInfoModalVisible(true);
+        }
+        console.log("onmessage,弹窗状态:", infoCount, infoModalVisible, "95-------------------------");
+      }
+    } else {
+      window.localStorage.setItem("wanningInfoTop", JSON.stringify(res.totalCount));
+      if (!infoModalVisible && res.totalCount > 0) {
+        setInfoModalVisible(true);
+      }
+      console.log("onmessage,弹窗状态:", infoCount, infoModalVisible, "95-------------------------");
+    }
+
     let dataSource = [];
     console.log(Date.parse(new Date()));
     res.results.map((data, index) => {
@@ -123,7 +126,7 @@ const App = props => {
     setPagination({
       ...pagin,
       total: res.totalCount,
-      showTotal: total => {
+      showTotal: (total) => {
         return `共 ${total} 条记录`;
       },
     });
@@ -132,58 +135,41 @@ const App = props => {
 
   const connectWS = () => {
     try {
-      const { customConfig = {} } = props;
-      const { 配置地址: wsConfig = [] } = customConfig;
-      const { hostname } = window.location;
-      const wsUrl = wsConfig.find(
-        conf => conf.env.indexOf(hostname) !== -1
-      )?.ws;
-      if (wsUrl) {
-        const userid = window?.currentUser
-          ? window?.currentUser.id
-          : "1234567890";
-        // let url = `ws://${window.location.host}/sdata/webSocket/` + userid;
-        const url =
-          `${wsUrl}/sdata/webSocket/` +
-          userid +
-          `@${Math.floor(Math.random() * 1000000)}`;
-        console.log("-----前端开始连接websocket-----", url);
-        websocket = new WebSocket(url);
-        websocket.onerror = function (e) {
-          console.log(e);
-        };
-        websocket.onopen = function () {
-          console.log("连接成功");
-          timer = setInterval(() => {
-            console.log("心跳");
-            let ping = { type: "ping" };
-            websocket.send(JSON.stringify(ping));
-          }, 5000);
-        };
-        websocket.onmessage = function (event) {
-          console.log(event);
-          if (!infoModalVisible) setInfoModalVisible(true);
-          getInfoData();
-        };
-        window.onbeforeunload = function () {
-          closeWebSocket();
-        };
-        websocket.onclose = function (e) {
-          console.log("连接关闭");
-          console.log(
-            "websocket 断开: " + e.code + " " + e.reason + " " + e.wasClean
-          );
-          clearInterval(timer);
-          timer = null;
-          if (e.code * 1 === 1000 || e.code * 1 === 1006) {
-            console.log("尝试重连");
-            connectWS();
-          }
-        };
-        function closeWebSocket() {
-          websocket.close();
-          websocket = null;
+      let userid = window?.currentUser ? window?.currentUser.id : "1234567890";
+      // let url = `ws://${window.location.host}/sdata/webSocket/` + userid;
+      let url = `ws://${window.location.hostname}:18180/sdata/webSocket/` + userid + `@${Math.floor(Math.random() * 1000000)}`;
+      console.log("-----前端开始连接websocket-----", url);
+      websocket = new WebSocket(url);
+      websocket.onerror = function (e) {
+        console.log(e);
+      };
+      websocket.onopen = function () {
+        console.log("连接成功");
+        timer = setInterval(() => {
+          console.log("心跳");
+          let ping = { type: "ping" };
+          websocket.send(JSON.stringify(ping));
+        }, 5000);
+      };
+      websocket.onmessage = function (event) {
+        console.log(event, "event", 142142142142142142142142);
+        getInfoData();
+      };
+      window.onbeforeunload = function () {
+        closeWebSocket();
+      };
+      websocket.onclose = function (e) {
+        console.log("连接关闭");
+        console.log("websocket 断开: " + e.code + " " + e.reason + " " + e.wasClean);
+        timer = null;
+        if (e.code * 1 === 1000 || e.code * 1 === 1006) {
+          console.log("尝试重连");
+          connectWS();
         }
+      };
+      function closeWebSocket() {
+        websocket.close();
+        websocket = null;
       }
     } catch (error) {
       console.log("e", error);
@@ -193,7 +179,7 @@ const App = props => {
   useEffect(() => {
     // ReportingService.setCookie(Cookie);
     // ReportingService.isLogin();
-    getInfoData().then(res => {
+    getInfoData().then((res) => {
       setInitLoading(false);
       console.log("res.results: ", res.results);
       setList(res.results);
@@ -211,9 +197,7 @@ const App = props => {
     if (menuId) {
       const id = menuId.split("#")[0];
       setKey(id);
-      const breadCrumb = flatArr(menuData).find(
-        item => item.id === id
-      )?.breadCrumbItem;
+      const breadCrumb = flatArr(menuData).find((item) => item.id === id)?.breadCrumbItem;
       setBreadCrumbs(breadCrumb);
     }
 
@@ -223,9 +207,7 @@ const App = props => {
       window.PubSub.subscribe("menuClick", (_, { key }) => {
         const data1 = key.split("#")[0];
         setKey(data1);
-        const breadCrumb = flatArr(menuData).find(
-          item => item.id === data1
-        )?.breadCrumbItem;
+        const breadCrumb = flatArr(menuData).find((item) => item.id === data1)?.breadCrumbItem;
         setBreadCrumbs(breadCrumb);
       });
     window.PubSub &&
@@ -238,30 +220,40 @@ const App = props => {
     // 获取保存的密码
     localStorage.getItem("externalPassword");
     return () => {
-      clearInterval(timer);
       timer = null;
     };
   }, []);
 
   const toggleCollapsed = () => {
+    console.log(props);
     setTimeout(() => {
       setCollapsed(!collapsed);
     }, 140);
-    window.PubSub.publish("collapsed", !collapsed);
+    // window.PubSub.publish("collapsed", !collapsed);
+    // props.setAppMenucollapsed(!collapsed);
+    var newEvent =new CustomEvent("MenuClick", {
+      detail: { tf: !collapsed }
+    });
+    window.dispatchEvent(newEvent);
   };
 
   const getUserName = () => {
     const { customConfig } = props;
     customConfig?.getUserName &&
-      customConfig.getUserName(name => {
+      customConfig.getUserName((name) => {
         setUserName(name);
       });
+    if (!customConfig?.getUserName) {
+      ReportingService.user().then((res) => {
+        setUserName(res.data.name);
+      });
+    }
   };
 
-  const onSearch = value => {
+  const onSearch = (value) => {
     if (value) {
       let flatArrData = flatArr(menuData);
-      let data = flatArrData.filter(item => {
+      let data = flatArrData.filter((item) => {
         return item.label.indexOf(value) > -1;
       });
       setOptions(data);
@@ -283,7 +275,7 @@ const App = props => {
   const handleOk = () => {
     form
       .validateFields()
-      .then(values => {
+      .then((values) => {
         let res = Base64.btoa(values.password); //加密
         localStorage.setItem("externalPassword", res);
         setLoading(true);
@@ -296,7 +288,7 @@ const App = props => {
           });
         }, 1000);
       })
-      .catch(errorInfo => {
+      .catch((errorInfo) => {
         return;
       });
   };
@@ -312,7 +304,7 @@ const App = props => {
     }
   };
 
-  const onFinish = values => {
+  const onFinish = (values) => {
     const password = values.externalPassword;
     const res = Base64.btoa(password);
     if (localStorage.getItem("externalPassword") === res) {
@@ -332,7 +324,16 @@ const App = props => {
     console.log(props);
     if (key === "1") {
       console.log("onSignOutonSignOutonSignOutonSignOut");
-      onSignOut();
+      if (onSignOut) {
+        onSignOut();
+      } else {
+        ReportingService.logout().then((res) => {
+          console.log(res);
+          if (res.status == "200") {
+            window.location.href = window.location.origin + "/dtyq/pngf/login";
+          }
+        });
+      }
     }
     if (key === "2") {
       jumptoPersonalCenter && jumptoPersonalCenter();
@@ -345,7 +346,7 @@ const App = props => {
       <Menu.Item key="1">退出登录</Menu.Item>
     </Menu>
   );
-  const read = id => {
+  const read = (id) => {
     ReportingService.read(id);
     getInfoData();
   };
@@ -364,7 +365,7 @@ const App = props => {
       )
     );
 
-    getInfoData().then(res => {
+    getInfoData().then((res) => {
       const newData = data.concat(res.results);
       setData(newData);
       setList(newData);
@@ -380,10 +381,7 @@ const App = props => {
       dataIndex: "index",
       key: "index",
       width: "66px",
-      render: (_, record) =>
-        (pagination.current - 1) * pagination.pageSize +
-        parseInt(record.key) +
-        1,
+      render: (_, record) => (pagination.current - 1) * pagination.pageSize + parseInt(record.key) + 1,
       align: "center", //头部单元格和列内容水平居中
       className: "blueThead",
       showSorterTooltip: false,
@@ -392,8 +390,7 @@ const App = props => {
       title: "动作时间",
       key: "actionTime",
       dataIndex: "actionTime",
-      sorter: (a, b) =>
-        Date.parse(new Date(a.actionTime)) - Date.parse(new Date(b.actionTime)),
+      sorter: (a, b) => Date.parse(new Date(a.actionTime)) - Date.parse(new Date(b.actionTime)),
       width: "188px",
       align: "center", //头部单元格和列内容水平居中
       showSorterTooltip: false,
@@ -423,7 +420,7 @@ const App = props => {
       sorter: (a, b) => a.content.localeCompare(b.content, "zh"),
       align: "center", //头部单元格和列内容水平居中
       width: "323px",
-      render: text => <span style={{ marginLeft: "15px" }}>{text}</span>,
+      render: (text) => <span style={{ marginLeft: "15px" }}>{text}</span>,
       showSorterTooltip: false,
     },
     {
@@ -446,7 +443,7 @@ const App = props => {
       ),
     },
   ];
-  const handleTableChange = newPagination => {
+  const handleTableChange = (newPagination) => {
     getInfoData({
       pagination: newPagination,
     });
@@ -473,7 +470,7 @@ const App = props => {
           <img style={{ width: 50, height: 50 }} alt="" src={logo} />
         </div>
       ) : (
-        <div className="logo" style={{ width: 256 }}>
+        <div className="logo" style={{ width: 255 }}>
           <img style={{ width: 50, height: 50 }} alt="" src={logo} />
           <span className="title">分布式光伏服务平台</span>
         </div>
@@ -482,13 +479,7 @@ const App = props => {
         <div className="left">
           <div onClick={() => toggleCollapsed()}>
             {
-              <svg
-                width="24"
-                height="19"
-                viewBox="0 0 24 19"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg width="24" height="19" viewBox="0 0 24 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   fill-rule="evenodd"
                   clip-rule="evenodd"
@@ -501,15 +492,7 @@ const App = props => {
           <Breadcrumb style={{ marginLeft: 16 }}>
             {breadCrumbs?.map((item, index) => (
               // <Breadcrumb.Item style={{ fontSize: "16px", fontWeight: index == 0 ? 700 : 400, color: "#0084FF" }}>{item}</Breadcrumb.Item>
-              <Breadcrumb.Item
-                style={{
-                  fontSize: "16px",
-                  fontWeight: index == 0 ? 700 : 400,
-                  color: "#0084FF",
-                }}
-              >
-                {index == breadCrumbs.length - 1 ? item : item}
-              </Breadcrumb.Item>
+              <Breadcrumb.Item style={{ fontSize: "16px", fontWeight: index == 0 ? 700 : 400, color: "#0084FF" }}>{index == breadCrumbs.length - 1 ? item : item}</Breadcrumb.Item>
             ))}
           </Breadcrumb>
           {/* <div className="inputText" onClick={() => setVisible(true)}>
@@ -544,27 +527,14 @@ const App = props => {
         </div>
 
         <div className="header-right">
-          <FullscreenOutlined
-            onClick={onEnlarge}
-            style={{ fontSize: "25px", color: "#666666" }}
-          />
-          <LockOutlined
-            onClick={onLockScreen}
-            style={{ fontSize: "25px", color: "#666666", marginLeft: 10 }}
-          />
+          <FullscreenOutlined onClick={onEnlarge} style={{ fontSize: "25px", color: "#666666" }} />
+          <LockOutlined onClick={onLockScreen} style={{ fontSize: "25px", color: "#666666", marginLeft: 10 }} />
           <Badge count={infoCount} onClick={() => setInfoModalVisible(true)}>
             <Avatar
               size={28}
               style={{ marginLeft: 10, backgroundColor: "#fff0" }}
               icon={
-                <svg
-                  t="1660548868120"
-                  className="icon"
-                  viewBox="0 0 1024 1024"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  p-id="2611"
-                >
+                <svg t="1660548868120" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2611">
                   <path
                     d="M593.861938 788.582269 424.670537 788.582269c-9.444093 0-18.437931 3.931542-24.695448 10.902304-6.313799 6.970762-9.441023 16.32378-8.547677 25.675776 2.860141 29.191856 16.32378 56.238862 38.009685 76.018348 21.772886 20.016893 50.161447 31.0379 79.889515 31.0379 29.696346 0 58.084906-11.022031 79.830163-30.977525 21.714558-19.839861 35.178197-46.885843 38.068014-76.255755 0.595564-9.473769-2.534729-18.707061-8.638751-25.498744C612.299869 792.513812 603.306031 788.582269 593.861938 788.582269zM555.020304 863.825974c-25.082258 22.877033-66.604954 22.817682-91.567485 0.060375-7.596002-6.970762-13.404288-15.429411-17.157775-24.723078l125.82266 0C568.394916 848.51629 562.643935 856.914564 555.020304 863.825974z"
                     p-id="2612"
@@ -596,23 +566,8 @@ const App = props => {
       {localStorage.getItem("externalPassword") && !show ? (
         <div className="unlock-modal">
           <div style={{ marginTop: 300 }}>
-            <Form
-              style={{ width: 500, margin: "auto" }}
-              name="basic"
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
-              form={form}
-              autoComplete="off"
-              onFinish={onFinish}
-            >
-              <Form.Item
-                label="开锁密码"
-                name="externalPassword"
-                rules={[
-                  { required: true, message: "请输入开锁密码！" },
-                  { validator: checkPassword },
-                ]}
-              >
+            <Form style={{ width: 500, margin: "auto" }} name="basic" labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} autoComplete="off" onFinish={onFinish}>
+              <Form.Item label="开锁密码" name="externalPassword" rules={[{ required: true, message: "请输入开锁密码！" }, { validator: checkPassword }]}>
                 <Input placeholder="请输入开锁密码" />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 21, span: 3 }}>
@@ -631,12 +586,7 @@ const App = props => {
           onOk={handleOk}
           closable={false}
           footer={[
-            <Button
-              key="submit"
-              type="primary"
-              loading={loading}
-              onClick={handleOk}
-            >
+            <Button key="submit" type="primary" loading={loading} onClick={handleOk}>
               确定
             </Button>,
             <Button key="cancel" onClick={cancel}>
@@ -644,18 +594,8 @@ const App = props => {
             </Button>,
           ]}
         >
-          <Form
-            name="basic"
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 20 }}
-            form={form}
-            autoComplete="off"
-          >
-            <Form.Item
-              label="锁屏密码"
-              name="password"
-              rules={[{ required: true, message: "请输入密码！" }]}
-            >
+          <Form name="basic" labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} autoComplete="off">
+            <Form.Item label="锁屏密码" name="password" rules={[{ required: true, message: "请输入密码！" }]}>
               <Input placeholder="请输入锁屏密码" />
             </Form.Item>
           </Form>
@@ -722,15 +662,7 @@ const App = props => {
           width={1000}
           // bodyStyle={{ height: "480px" }}
         >
-          <Table
-            columns={columns}
-            bordered
-            rowKey={record => record.id}
-            dataSource={data}
-            pagination={pagination}
-            loading={loading}
-            onChange={handleTableChange}
-          />
+          <Table columns={columns} bordered rowKey={(record) => record.id} dataSource={data} pagination={pagination} loading={loading} onChange={handleTableChange} />
         </Modal>
       )}
     </div>

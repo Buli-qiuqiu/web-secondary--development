@@ -7,12 +7,10 @@ import request from "./request";
 export const queryAssetById = (id) => request.post(`/asset/getAssetData?asset_id=${id}`, []);
 
 // 获取表格资产
-// export const queryAssetByTime = (ids, time) => request.post(`/DispersionRatio/queryDispersionRatio?ids=${ids}&time=${time}`);
 export const queryAssetByTime = (ids, startTime, endTime, page, pageSize) =>
    request.post(`/DispersionRatio/queryDispersionRatio?ids=${ids}&startTime=${startTime}&endTime=${endTime}&page=${page}&pageSize=${pageSize}`);
 
 // 获取图表资产
-// export const getEcharts = (ids, time) => request.get(`/DispersionRatio/queryColumnDiagramData?ids=${ids}&time=${time}`);
 export const getEcharts = (ids, startTime, endTime) => request.get(`/DispersionRatio/queryColumnDiagramData?ids=${ids}&startTime=${startTime}&endTime=${endTime}`);
 
 // 导出图表

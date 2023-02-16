@@ -26,7 +26,7 @@
       </div>
       <!-- 表格 -->
       <div class="table_box" v-if="pageType == 'table'">
-         <el-table ref="tableData" :data="tableData" border :cell-style="tableRowClassName" :header-cell-style="{ background: '#ECF5FF' }" height="100%">
+         <el-table ref="tableData" v-loading="tableLoading" :data="tableData" border :cell-style="tableRowClassName" :header-cell-style="{ background: '#ECF5FF' }" height="100%">
             <el-table-column class-name="first_column" prop="time" label="时间" width="160" sortable fixed align="center"></el-table-column>
             <el-table-column class-name="second_column" prop="dispersion_rate" label="离散率（%）" min-width="120" fixed align="center"></el-table-column>
             <el-table-column class-name="third_column" prop="current_p_avg" label="平均电流Ⅰ*" min-width="105" fixed align="center"></el-table-column>
@@ -127,6 +127,8 @@ export default {
             //   PV25: "123",
             // },
          ],
+         // 表格loading
+         tableLoading: false,
          // 图表
          myChart: null,
          // 图表数据
@@ -160,7 +162,7 @@ export default {
       this.addDatePickerIcon();
 
       if (process.env.NODE_ENV !== "production") {
-         this.do_EventCenter_getIds({ value: "1999117999234" });
+         this.do_EventCenter_getIds({ value: "1999116999240" });
       }
    },
 
@@ -388,6 +390,8 @@ export default {
 
       // 获取Echarts图表数据
       getEchartsData() {
+         this.seriesData = [];
+
          let _startTime = this.datePicke[0];
          let _endTime = this.datePicke[1];
 
@@ -414,26 +418,34 @@ export default {
 
       // 获取表格数据
       getTabelData() {
+         this.tableData = [];
+         this.tableLoading = true;
+
          let _startTime = this.datePicke[0];
          let _endTime = this.datePicke[1];
 
          _startTime = moment(_startTime).format("yyyy-MM-DD 00:00:00");
          _endTime = moment(_endTime).format("yyyy-MM-DD 23:59:59");
 
-         queryAssetByTime(this.ids, _startTime, _endTime, this.page, this.pageSize).then((res) => {
-            let resData = JSON.parse(JSON.stringify(res.data));
-            resData.forEach((item) => {
-               if (item.time) {
-                  let times = Date.parse(new Date(item.time));
-                  item.time = moment(times).format("yyyy-MM-DD HH:mm:ss");
-               }
-            });
+         queryAssetByTime(this.ids, _startTime, _endTime, this.page, this.pageSize)
+            .then((res) => {
+               let resData = JSON.parse(JSON.stringify(res.data));
+               resData.forEach((item) => {
+                  if (item.time) {
+                     let times = Date.parse(new Date(item.time));
+                     item.time = moment(times).format("yyyy-MM-DD HH:mm:ss");
+                  }
+               });
 
-            this.$nextTick(() => {
-               this.tableData = resData;
-               this.$forceUpdate();
+               this.$nextTick(() => {
+                  this.tableData = resData;
+                  this.$forceUpdate();
+                  this.tableLoading = false;
+               });
+            })
+            .catch(() => {
+               this.tableLoading = false;
             });
-         });
 
          function debounce(func, ms = 1000) {
             let timer;
@@ -463,7 +475,7 @@ export default {
          if (value == "echarts") {
             this.getEchartsData();
          } else {
-            this.getEchartsData();
+            this.getTabelData();
          }
       },
 
@@ -473,12 +485,8 @@ export default {
             return "coloumn_grey";
          }
          if (row[`PV${index}`]) {
-            if (row.dispersion_rate > 0.1) {
-               if ((row[`PV${index}`] - row.current_p_avg) / row.current_p_avg >= 0.2) {
-                  return "coloumn_yellow";
-               } else {
-                  return "coloumn_white";
-               }
+            if ((row.current_p_avg - row[`PV${index}`]) / row.current_p_avg >= 0.2) {
+               return "coloumn_yellow";
             } else {
                return "coloumn_white";
             }
@@ -807,41 +815,5 @@ export default {
 }
 .tooltipBox .tooltipBox_content:last-child {
    margin-bottom: 10px;
-}
-.column_label {
-  font-size: 11px;
-}
-
-// echarts悬浮框
-.tooltipBox {
-  width: 135px;
-  padding: 0 !important;
-  background-color: rgba(111, 111, 111, 0.8) !important;
-  border-width: 0 !important;
-  border-radius: 5 !important;
-}
-.tooltipBox_title,
-.tooltipBox_content {
-  display: flex;
-  text-align: left;
-  align-items: center;
-  height: 20px;
-  padding-left: 10px;
-  padding-top: 5px;
-}
-.tooltipBox_radius {
-  width: 15px;
-  height: 15px;
-  margin-right: 10px;
-  border-radius: 50%;
-}
-.tooltipBox_title {
-  margin: 5px 0 5px 0;
-}
-.tooltipBox_content {
-  margin-bottom: 5px;
-}
-.tooltipBox .tooltipBox_content:last-child {
-  margin-bottom: 10px;
 }
 </style>

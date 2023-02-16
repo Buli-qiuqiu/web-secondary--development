@@ -2,12 +2,18 @@ import axios from "axios";
 import qs from "querystringify";
 
 // const apiContextPath = "http://192.168.1.240:43214";
+let apiContextPath = "";
 if (process.env.NODE_ENV === "development") {
-  document.cookie = "token=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY1ODIxMzkzMjk1NCwidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.1Tl92Hr57X3lYxO8bnuAISD_O1P0vYuq3q-GtMLC11s";
+  document.cookie = "token=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY3NTA0NTIyMjg3NiwidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.dHPo6uBpC_L5LQaGVPh1Ab7WRcob2muCu65AS4mHl8o";
+  document.cookie =
+    "refreshToken=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY3NTA0NTIyMjkzNH0.f1pCVP-wAGJPOS75_5WCQpTWFD4kJ8J7RIneaG4MI7A";
+  document.cookie = "username=admin";
+  document.cookie = "windowOnline=true";
+  apiContextPath = "/api";
 }
 
 const instance = axios.create({
-  baseURL: `/sdata/rest`,
+  baseURL: `${apiContextPath}/sdata/rest`,
   timeout: 60000,
   validateStatus: function (status) {
     return status >= 200 && status < 300; // default

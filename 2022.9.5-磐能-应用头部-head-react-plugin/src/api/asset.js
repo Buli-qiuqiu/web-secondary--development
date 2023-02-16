@@ -18,5 +18,7 @@ export const setCookie = (token) =>
 // 已读通知
 export const read = (id) => request.get(`sysInfo/read?id=${id}`);
 export const isLogin = () => request.get("system/authority/isLogin");
+export const user = () => request.get("/system/authority/user");
+export const logout = () => request.get("/system/authority/logout");
 export const login = (params) =>
   request.post(`/system/authority/loginAccount4Application`, params);
