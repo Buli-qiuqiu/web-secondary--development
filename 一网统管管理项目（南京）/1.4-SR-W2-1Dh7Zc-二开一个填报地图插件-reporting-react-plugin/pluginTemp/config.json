@@ -1,0 +1,14 @@
+{
+  "id": "7de6e1cd-892d-401d-bbdb-7b12b099ece6",
+  "type": "reporting",
+  "main": "main.f61cfe0f.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W53-Dd0gjO",
+  "requirement-name": "二开一个表单组件"
+}

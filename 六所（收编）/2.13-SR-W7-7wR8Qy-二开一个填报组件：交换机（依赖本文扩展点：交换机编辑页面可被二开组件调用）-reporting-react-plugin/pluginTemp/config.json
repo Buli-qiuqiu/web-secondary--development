@@ -1,0 +1,14 @@
+{
+  "id": "2f27776c-3307-41db-90b1-29180ea5b84b",
+  "type": "reporting",
+  "main": "app.b9ac5101.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W7-7wR8Qy",
+  "requirement-name": "二开一个填报组件：交换机（依赖本文扩展点：交换机编辑页面可被二开组件调用）"
+}

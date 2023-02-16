@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import './index.less'
-import dome from '../../api/demo.png'
+import dome from '../../api/demo2.png'
 export default class Main extends Component {
   state = {
     id: "",

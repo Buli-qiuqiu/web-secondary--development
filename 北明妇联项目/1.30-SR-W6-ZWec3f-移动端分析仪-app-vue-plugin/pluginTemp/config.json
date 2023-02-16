@@ -1,0 +1,22 @@
+{
+  "id": "6de003aa-dab7-4dfc-9cd4-c966e16bbf30",
+  "type": "app",
+  "main": "app.0ccb634e.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id",
+      "sorData",
+      "assetId"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W6-ZWec3f",
+  "requirement-name": "移动端分析仪二开"
+}

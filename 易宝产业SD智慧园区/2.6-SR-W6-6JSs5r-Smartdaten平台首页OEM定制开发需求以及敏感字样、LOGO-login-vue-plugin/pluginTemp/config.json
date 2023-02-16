@@ -1,0 +1,21 @@
+{
+  "id": "e48f8666-0e42-46bb-9010-b91713f154fe",
+  "type": "app",
+  "main": "app.d3995451.js",
+  "version": "2",
+  "props": {
+    "type": "login",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id",
+      "底部信息"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W6-6JSs5r",
+  "requirement-name": "平台首页OEM定制开发需求以及敏感字样、LOGO"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "3519b44f-8f66-47ca-bdbf-75d655206baa",
+  "type": "reporting",
+  "main": "main.c484502a.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  }
+}

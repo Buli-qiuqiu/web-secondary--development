@@ -1,0 +1,27 @@
+{
+  "id": "c0bfa4f8-4d25-4d2b-a495-d24fbcb4bb0b",
+  "type": "analyzer",
+  "main": "app.4215c165.js",
+  "version": "2",
+  "configuration": true,
+  "props": {
+    "img": "custom_table.png",
+    "type": "qoiwud23fo3",
+    "disableimg": "disabled_custom_table.png",
+    "name": "demo",
+    "process": true,
+    "domId": "ex_46fbe360-daa5-42af-8ca0-2ec3066ef216",
+    "lib": [],
+    "cssDep": [],
+    "scriptName": "main.b42fe2f5.js",
+    "vars": [
+      "id",
+      "系列颜色",
+      "柱体圆角",
+      "柱体宽度"
+    ],
+    "optionModules": []
+  },
+  "requirement-number": "SR-W6-MssBG5",
+  "requirement-name": "堆叠柱状图"
+}

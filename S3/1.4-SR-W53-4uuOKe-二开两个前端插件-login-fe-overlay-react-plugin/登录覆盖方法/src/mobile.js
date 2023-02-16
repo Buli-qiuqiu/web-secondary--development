@@ -207,14 +207,14 @@ const App = props => {
                     <div className="compute-images-box">
                         <img className="compute-images" src={compute} alt="" />
                     </div>
-                    <div className="login-mobile-title">您已登陆成功</div>
+                    <div className="login-mobile-title">您已登录成功</div>
                     <div className="login-mobile-account-title">
                         以下是您的试用账户信息
                     </div>
                     <div className="login-mobile-account">{userName}</div>
                     <div className="login-mobile-content">
                         为了保证您的试用体验 请通过电脑访问 <span>s3.smardaten.com</span>
-                        并使用您上述注册信息登录 即可开启您的无码化构建应用之旅
+                        并使用您上述注册信息登录 即可开启您的无代码应用构建之旅
                     </div>
                     <div
                         className="login-mobile-btn"

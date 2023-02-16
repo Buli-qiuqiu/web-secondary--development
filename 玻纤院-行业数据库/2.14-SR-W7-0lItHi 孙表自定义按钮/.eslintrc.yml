@@ -1,0 +1,48 @@
+parser: babel-eslint
+# parser: esprima
+
+extends:
+  # - airbnb
+  - standard
+  - plugin:react/recommended
+  - prettier
+  - prettier/react
+  - prettier/standard
+  - plugin:jest/recommended
+
+plugins:
+  - react
+  - prettier
+  - standard
+  - react-hooks
+  - jest
+
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+    globalReturn: true
+    legacyDecorators: true
+
+env:
+  es6: true
+  node: true
+  browser: true
+
+rules:
+  prettier/prettier: error
+  standard/no-callback-literal: off
+  camelcase: 'off'
+  react-hooks/rules-of-hooks: error
+  react-hooks/exhaustive-deps: warn
+  no-unused-vars: [error, { varsIgnorePattern: ^_ }]
+settings:
+  react:
+    version: '16.9'
+
+globals:
+  WeixinJSBridge: true
+  $: true
+  T: true
+  CityGis: true
+  OM_MODULE: true
+  Cesium: true

@@ -1,0 +1,33 @@
+{
+  "id": "92a4328e-8afe-4205-9d85-9cb484910599",
+  "type": "app",
+  "main": "app.206b4c36.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id",
+      "标题位置",
+      "信息位置",
+      "宽度",
+      "文章资产id",
+      "标题字段",
+      "正文字段",
+      "创建人字段",
+      "创建时间字段",
+      "type字段",
+      "变量名",
+      "click_record_log资产",
+      "inform资产",
+      "sys_account资产"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W6-2PbSBl",
+  "requirement-name": "二开一个应用组件"
+}
