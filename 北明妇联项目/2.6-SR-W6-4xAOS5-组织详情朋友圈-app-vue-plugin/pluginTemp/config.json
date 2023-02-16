@@ -1,0 +1,18 @@
+{
+  "id": "405a4961-b2a2-4b51-874b-270c9230fc53",
+  "type": "app",
+  "main": "app.525ae352.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": []
+  },
+  "configuration": true,
+  "requirement-number": "SR-W2-qf0DjN",
+  "requirement-name": "活动朋友圈"
+}

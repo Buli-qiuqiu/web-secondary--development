@@ -1,0 +1,18 @@
+{
+  "id": "c20b25f9-978a-47e5-abae-79a53bbcaac6",
+  "type": "app",
+  "main": "app.aca07e28.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": []
+  },
+  "configuration": true,
+  "requirement-number": "SR-W6-4xAOS5",
+  "requirement-name": "宣传图片与视频"
+}

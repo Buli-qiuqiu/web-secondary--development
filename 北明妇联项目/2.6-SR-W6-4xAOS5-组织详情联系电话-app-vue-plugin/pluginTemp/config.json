@@ -1,0 +1,20 @@
+{
+  "id": "5940e343-2e77-4a68-ad6c-1e3118019714",
+  "type": "app",
+  "main": "app.c26dffca.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W2-qf0DjN",
+  "requirement-name": "底部电话与参与活动"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "e2e01418-f705-4300-8ad9-db76d6f75ef2",
+  "type": "app",
+  "main": "app.d9f09c9d.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W6-4xAOS5",
+  "requirement-name": "tab栏"
+}
