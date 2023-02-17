@@ -11,12 +11,20 @@ module.exports = {
       },
     },
   },
+
+  productionSourceMap: false,
+  configureWebpack: {
+    externals: {
+      vue: "Vue",
+      "element-ui": "ELEMENT",
+    }
+  },
   chainWebpack: config => {
     config.when(process.env.NODE_ENV === "production", config => {
       config.optimization.splitChunks(false);
       config.plugins.delete("extract-css");
 
-      ["postcss", "scss", "css", "sass", "less", "stylus"].forEach(element => {
+          ["postcss", "scss", "css", "sass", "less", "stylus"].forEach(element => {
         ["vue-modules", "vue", "normal-modules", "normal"].forEach(m => {
           config.module
             .rule(element)

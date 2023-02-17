@@ -66,22 +66,9 @@
 
 <script>
 import eventActionDefine from "./components/msgCompConfig";
-import {
-  RadioButton,
-  RadioGroup,
-  Carousel,
-  CarouselItem
-} from "element-ui";
-import Vue from "vue"
-import utils from "@/utils";
 import { queryAssetById } from './api/asset'
 
 // import $ from "jquery"
-
-Vue.use(RadioGroup)
-Vue.use(RadioButton)
-Vue.use(Carousel)
-Vue.use(CarouselItem)
 
 export default {
   //这里写组件英文名称，容器dom的id及事件中心命名均用到这个name，请认真填写
