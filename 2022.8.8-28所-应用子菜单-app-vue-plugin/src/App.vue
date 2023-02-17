@@ -46,7 +46,6 @@ import eventActionDefine from './components/msgCompConfig'
 import './index.css'
 import { getAssetById, queryAssetById, getMenu } from './api/asset'
 
-
 export default {
   name: 'App',
   props: {
@@ -83,16 +82,6 @@ export default {
     }
   },
   computed: {
-    // pinPaiColor() {
-    //   let { theme_global_config } = this.themeInfo || { theme_global_config: { '--theme-public-pinPai-color': 'rgba(24,144,255,0.8)' } }
-    //   let themeColor = theme_global_config['--theme-public-pinPai-color']
-    //   return themeColor
-    // },
-    // pinPaiTextColor() {
-    //   let { theme_global_config } = this.themeInfo || { theme_global_config: { '--theme-public-pinPai-color': 'rgba(24,144,255,0.8)' } }
-    //   let themeColor = theme_global_config["--theme-public-text-color-1"]
-    //   return themeColor
-    // },
     pinPaiColor() {
       let theme_global_config = this.themeInfo ? this.themeInfo?.theme_global_config : { '--theme-public-pinPai-color': 'rgba(24,144,255,0.8)' }
       let themeColor = theme_global_config['--theme-public-pinPai-color']

@@ -1,31 +1,59 @@
-import Vue from "vue";
+// import Vue from "vue";
 import App from "./App.vue";
 // 按需引入组件，引入方式见https://element.eleme.cn/#/zh-CN/component/quickstart#an-xu-yin-ru
-import { Input, Select, Option, Button, Avatar, Tooltip } from "element-ui";
+// import { Input, Select, Option, Button, Avatar, Tooltip } from "element-ui";
 
 Vue.config.productionTip = false;
-Vue.use(Input);
-Vue.use(Select);
-Vue.use(Option);
-Vue.use(Button);
-Vue.use(Avatar);
-Vue.use(Tooltip);
+// Vue.use(Input);
+// Vue.use(Select);
+// Vue.use(Option);
+// Vue.use(Button);
+// Vue.use(Avatar);
+// Vue.use(Tooltip);
 
 // import * as appService from "@njsdata/app-sdk";
+
+// 优化
+function loadScript(url, callback) {
+  var script = document.createElement("script")
+  script.type = "text/javascript";
+  if (script.readyState) { //IE
+    script.onreadystatechange = function () {
+      if (script.readyState == "loaded" || script.readyState == "complete") {
+        script.onreadystatechange = null;
+        callback();
+      }
+    };
+  } else { //Others
+    script.onload = function () {
+      callback();
+    };
+  }
+  script.src = url;
+  document.head.appendChild(script);
+}
+
+// 动态记载样式
+function loadStyle(url) {
+  var style = document.createElement("style");
+  style.href = url;
+
+  document.head.appendChild(style);
+}
 
 if (process.env.NODE_ENV !== "production") {
   // 添加 customConfig 进行测试
   let customConfig = {
-    assetId: "3115d8fb-c11e-927f-bbe2-442969a56d1d",//xjg_application_store_often
-    menuId: "d7c51222-fc24-42d2-b793-ec974000c87d",
+    assetId: "54b18540-a396-41a6-9333-34ab04336df0",//xjg_application_store_often
+    menuId: "0ed9c06a-eec1-eb09-498e-faf3963beec0",
     title: "应用工具",
     moreTo: "http://baidu.com",
     menuTitle: "name",
     menuDesc: "desc",
     menuTo: "url",
-    menuTypeTitle: "title",
+    menuTypeTitle: "menuTypeTitle",
     menuType: "menuType",
-    boxHeight: "",
+    boxHeight: "240",
     filterWords: "user_id",
     rowNum: "1",
     themePic:'[{"themeId":"d8724186-78cf-4c23-abb6-e931974e2df4","image":"photo"},{"themeId":"52250e971ce3482491f75a7ae01af824","image":"photo"}]'
@@ -72,14 +100,38 @@ if (process.env.NODE_ENV !== "production") {
   window.CUSTOM_PLUGIN.set(
     process.env.VUE_APP_CUSTOM_PLUGIN_ID,
     (dom, props) => {
-      if (dom.childNodes.length > 0) {
-        dom.removeChild(dom.childNodes[0]);
+      // if (dom.childNodes.length > 0) {
+      //   dom.removeChild(dom.childNodes[0]);
+      // }
+      // const div = document.createElement("div");
+      // dom.appendChild(div);
+      // new Vue({
+      //   render: h => <App {...{ props }} />,
+      // }).$mount(div);
+      // 优化
+      if (!window.Vue) {
+        loadScript('/static/vue.min.js', () => {
+          loadScript('/static/element-ui/index.js', () => {
+            run(dom, props)
+          })
+        })
+        loadStyle('/element-ui/theme-chalk/index.min.css')
+      } else {
+        run(dom, props)
       }
-      const div = document.createElement("div");
-      dom.appendChild(div);
-      new Vue({
-        render: h => <App {...{ props }} />,
-      }).$mount(div);
     }
   );
 }
+
+// 优化
+function run(dom, props) {
+  if (dom.childNodes.length > 0) {
+    dom.removeChild(dom.childNodes[0]);
+  }
+  const div = document.createElement("div");
+  dom.appendChild(div);
+  new Vue({
+    render: h => <App {...{ props }} />,
+  }).$mount(div);
+}
+

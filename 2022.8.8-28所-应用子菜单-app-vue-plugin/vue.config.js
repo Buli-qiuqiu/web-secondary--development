@@ -4,13 +4,21 @@ module.exports = {
     proxy: {
       "/api": {
         // target: "http://10.15.111.9:13042",
-        target: "http://10.15.111.9:12292",
+        // target: "http://10.15.111.9:12292",
+        target: "http://10.15.112.12:48080",
         changeOrigin: true,
         pathRewrite: {
           "/api": "",
         },
       },
     },
+  },
+  productionSourceMap: false,
+  configureWebpack: {
+    externals: {
+      vue: "Vue",
+      "element-ui": "ELEMENT",
+    }
   },
   chainWebpack: config => {
     config.when(process.env.NODE_ENV === "production", config => {
