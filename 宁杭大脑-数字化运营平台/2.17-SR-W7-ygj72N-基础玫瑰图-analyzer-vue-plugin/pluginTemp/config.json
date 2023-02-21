@@ -1,0 +1,25 @@
+{
+  "id": "f59d741e-db1f-4b2a-8d20-d67a7dcfaa76",
+  "type": "analyzer",
+  "main": "app.d1dab6a7.js",
+  "version": "2",
+  "configuration": true,
+  "props": {
+    "img": "custom_table.png",
+    "type": "k23dasd547",
+    "disableimg": "disabled_custom_table.png",
+    "name": "vue实现测试",
+    "domId": "ex_custom_table_15",
+    "lib": [],
+    "cssDep": [],
+    "scriptName": "app.a515a2e6.js",
+    "optionModules": [],
+    "vars": [
+      "id",
+      "width",
+      "height"
+    ]
+  },
+  "requirement-number": "SR-W7-ygj72N",
+  "requirement-name": "基础玫瑰图"
+}
