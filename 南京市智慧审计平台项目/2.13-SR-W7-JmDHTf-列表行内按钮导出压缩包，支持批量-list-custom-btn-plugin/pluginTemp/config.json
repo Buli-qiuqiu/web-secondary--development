@@ -1,0 +1,14 @@
+{
+  "id": "96464882-0ddf-413c-9150-951724000935",
+  "type": "list-custom-btn",
+  "main": "app.4605223b.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W7-JmDHTf",
+  "requirement-name": "列表行内按钮导出压缩包，支持批量"
+}
