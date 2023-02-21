@@ -1,0 +1,17 @@
+{
+  "id": "44452a29-b204-4af2-9ac7-80fc963fd027",
+  "type": "app",
+  "main": "app.16427f66.js",
+  "baseVersion": "V8R4C50SPC210",
+  "version": "2",
+  "props": {
+    "type": "login",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": []
+  },
+  "requirement-number": "SR-W8-th3Z4F",
+  "requirement-name": "登录页"
+}

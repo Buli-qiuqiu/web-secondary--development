@@ -1,0 +1,28 @@
+{
+  "id": "ce22a979-30a6-419d-9ade-8adb1fd19d2a",
+  "type": "app",
+  "main": "app.0cbb266c.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "menuId",
+      "title",
+      "moreTo",
+      "menuTitle",
+      "menuDesc",
+      "menuTo",
+      "menuTypeTitle",
+      "menuType",
+      "themePic",
+      "boxHeight",
+      "filterWords",
+      "rowNum"
+    ]
+  }
+}

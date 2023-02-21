@@ -1,0 +1,14 @@
+{
+  "id": "f01271bd-39d2-41bc-b910-b1dac90ab6ed",
+  "type": "reporting",
+  "main": "app.a0691a2f.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W7-p1pbyV",
+  "requirement-name": "python代码编辑框"
+}
