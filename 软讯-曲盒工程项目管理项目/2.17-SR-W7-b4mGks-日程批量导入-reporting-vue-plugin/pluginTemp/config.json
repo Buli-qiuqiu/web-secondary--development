@@ -1,0 +1,14 @@
+{
+  "id": "5bdf782a-6022-41ed-b0bd-5236c88e4a3f",
+  "type": "reporting",
+  "main": "app.a9bea0e1.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W7-b4mGks",
+  "requirement-name": "日程批量导入"
+}
