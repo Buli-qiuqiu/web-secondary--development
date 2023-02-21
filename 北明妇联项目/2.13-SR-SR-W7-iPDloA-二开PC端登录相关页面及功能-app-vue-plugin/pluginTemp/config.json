@@ -1,0 +1,20 @@
+{
+  "id": "71de9ebf-1676-4015-bcc5-312812acfaa6",
+  "type": "app",
+  "main": "app.ec4bb532.js",
+  "version": "2",
+  "props": {
+    "type": "login",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W7-iPDloA",
+  "requirement-name": "二开PC端登录相关页面及功能"
+}
