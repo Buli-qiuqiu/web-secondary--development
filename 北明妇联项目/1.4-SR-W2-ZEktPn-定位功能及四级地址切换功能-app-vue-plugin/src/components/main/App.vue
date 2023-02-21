@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" ref="app-secondary" class="app-secondary">
+  <div :id="id" ref="app-secondary" class="app-secondary-erkai">
     <el-button type="text" @click="popupShow" style="color: #000">{{ this.nowCityName || "全省" }}<i class="el-icon-arrow-down"></i></el-button>
     <van-popup
       v-model="popShow"
@@ -162,7 +162,7 @@ export default {
   methods: {
     async getaddress() {
       let res = await catalog();
-      this.areaList = res.data.result;
+      this.areaList = res.data;
       this.provinceArray = this.areaList.filter((item) => {
         return item.leval == 4;
       });

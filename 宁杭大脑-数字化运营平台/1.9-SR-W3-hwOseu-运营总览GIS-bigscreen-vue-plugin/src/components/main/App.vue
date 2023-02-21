@@ -1,6 +1,6 @@
 <template>
    <div ref="secondary_bigscreen" :id="id" class="outermast">
-      <el-button @click="do_EventCenter_changeEventType({ value: { value: '清障救援', type: 'day' } })">切换事件点</el-button>
+      <!-- <el-button @click="do_EventCenter_changeEventType({ value: { value: '交通事故', type: 'day' } })">清障救援</el-button> -->
       <!-- 地图 -->
       <div id="mapContent" ref="mapContent" @dblclick="clickMap"></div>
       <!-- 图层 -->
@@ -28,7 +28,7 @@
                      <img v-if="item.name == '清障大队'" src="../../assets/清障大队.png" alt="" />
                      <img v-if="item.name == '清障车'" src="../../assets/清障车.png" alt="" />
                      <img v-if="item.name == '危化品车'" src="../../assets/危化品车.png" alt="" />
-                     <img v-if="item.name == '警车'" src="../../assets/警车.png" alt="" />
+                     <img v-if="item.name == '警戒车'" src="../../assets/警车.png" alt="" />
                      <img v-if="item.name == '气象监测点'" src="../../assets/气象监测点.png" alt="" />
                      <img v-if="item.name == '彩云天气'" src="../../assets/彩云天气.png" alt="" />
                      <img v-if="item.name == '视频监控'" src="../../assets/视频监控.png" alt="" />
@@ -89,6 +89,9 @@
 import MsgCompConfig from "./msgCompConfig.js";
 import Utils from "@/utils/index.js";
 import "./app.less";
+
+import $ from "jquery";
+
 // 引入事件弹窗插件
 import EventInfoWindow from "./event-infoWindow.vue";
 
@@ -204,6 +207,7 @@ import rain from "../../assets/雨天.png";
 import snowyDay from "../../assets/雪天.png";
 // 雾天
 import foggyDay from "../../assets/雾天.png";
+import yellowCar from "../../assets/黄色的车.png";
 
 export default {
    name: "Main",
@@ -326,7 +330,9 @@ export default {
          apiList: [],
 
          // 彩云天气图片
-         imageLayerr: null,
+         imageLayerrList: [],
+
+         radarCarData: [],
       };
    },
 
@@ -474,6 +480,9 @@ export default {
                this.map.remove(item);
             });
             this.infoVideoMarkerList = [];
+            this.videoDialogIsShow = false;
+            this.videoTabsList = [];
+            this.activeTabs = "";
          }
          // 关闭雷达图轨迹
          if (this.radarPolyline) {
@@ -488,7 +497,7 @@ export default {
       // 处理图层面板数据
       async handleLayerPanelData() {
          // 图层面板默认选中
-         this.layerCheckList = [1, 2, 3, 4, 11, 12];
+         this.layerCheckList = [1, 2, 3, 4];
          // 渲染视频监控图标;
          this.videoDialogIconIsShow = true;
 
@@ -498,8 +507,8 @@ export default {
 
          // 获取接口数据
          await usePostApi(infrastructApi.value).then((res) => {
+            if (!res.data) return;
             infrastructData = res.data.res.data;
-            // infrastructData = infrastructList;
 
             // 添加聚合点条件
             infrastructData.serviceList.forEach((item) => {
@@ -528,10 +537,7 @@ export default {
          let equipmentData = [];
          let equipmentApi = this.getApiData("equipment_list");
          await usePostApi(equipmentApi.value).then((res) => {
-            // console.log("机电设备---->", res);
-            if (!res.data) {
-               return;
-            }
+            if (!res.data) return;
             equipmentData = res.data.res.data;
             // 添加聚合点条件
             equipmentData.screenList.forEach((item) => {
@@ -548,6 +554,9 @@ export default {
             ...infrastructData,
             ...equipmentData,
          };
+
+         console.log("图层面板数据：", this.layerAllData);
+
          // 生成标记点
          await this.createClusterMarker(this.layerAllData);
       },
@@ -570,6 +579,9 @@ export default {
       async replaceMarkerIcon(e) {
          // 获取坐标点自带参数
          let point = e.target.getExtData();
+
+         console.log("点击坐标点：", point);
+
          // 判断是否存在激活过的坐标点
          if (this.markerActive) {
             let markerActive = this.markerActive.target;
@@ -603,6 +615,7 @@ export default {
          // 替换激活图标
          e.target.setIcon(this.getIconImg("", point.levelB, true));
 
+         // 接口参数
          let dataFrom = { param: { id: point.id } };
 
          // 创建弹窗
@@ -636,8 +649,8 @@ export default {
                         <div class="money_yuan">元</div>
                      </div>
                      <div class="info_proportion">
-                        ${pointData.basisRate || pointData.basisRate == 0 ? `<div>同比 <span style="color: #ff6666">▲ ${pointData.basisRate || 0}</span></div>` : ""}
-                        ${pointData.roundRate || pointData.roundRate == 0 ? `<div>环比 <span style="color: #15f6ee">▼ ${pointData.roundRate || 0}</span></div>` : ""}
+                        ${pointData.basisRate || pointData.basisRate == 0 ? `<div>同比 <span style="color: #ff6666">▲ ${pointData.basisRate || "0%"}</span></div>` : ""}
+                        ${pointData.roundRate || pointData.roundRate == 0 ? `<div>环比 <span style="color: #15f6ee">▼ ${pointData.roundRate || "0%"}</span></div>` : ""}
                      </div>
                      <div class="info_infrastructure">
                         <div>
@@ -676,7 +689,7 @@ export default {
                </div>`;
             });
          }
-         if (point.levelB == "养护大队" || point.levelB == "危化品车" || point.levelB == "警车") {
+         if (point.levelB == "养护大队" || point.levelB == "危化品车" || point.levelB == "警戒车") {
             // 接口数据
             let pointData = [];
             // 养护大队详情
@@ -693,12 +706,11 @@ export default {
                   pointData = res.data.res.data.dangerDetail;
                });
             }
-            // 警车详情
-            if (point.levelB == "警车") {
+            // 警戒车
+            if (point.levelB == "警戒车") {
                let detailsApi = this.getApiData("warn_detail");
                await usePostApi(detailsApi.value, dataFrom).then((res) => {
-                  // pointData = res.data.res.data.warnDetail;
-                  pointData = { plateNum: "苏A·22222" };
+                  pointData = res.data.res.data.warnDetail;
                });
             }
             // 生成内容
@@ -712,22 +724,13 @@ export default {
             let detailsApi = this.getApiData("clear_detail");
             // 清障大队详情
             await usePostApi(detailsApi.value, dataFrom).then((res) => {
-               // let pointData = res.data.res.data;
-               // 接口数据
-               let pointData = {
-                  id: "101",
-                  plateNum: "苏A·00000",
-                  person: "张三",
-                  contact: "13776311841",
-                  status: "0",
-                  arrivalTime: 30,
-               };
+               let pointData = res.data.res.data.clearDetail;
                // 生成内容
                e.target.content = `<div class="map_infoWindow">
                   <div class="infoWindow_title">${pointData.plateNum}</div>
                   <div class="infoWindow_line"></div>
                   <div class="info_car">
-                     <div>${pointData.person}：${pointData.contact}</div>
+                     <div>${pointData.person || "清障员"}：${pointData.contact || ""}</div>
                      <div>状态：
                      ${
                         pointData.status == 0
@@ -737,7 +740,7 @@ export default {
                            : `<span style="color: #95F204">不可用</span>`
                      }
                      </div>
-                     <div>预计到达时间：${pointData.arrivalTime}分钟</div>
+                     <div>预计到达时间：${pointData.arrivalTime || 0}分钟</div>
                   </div>
                </div>`;
             });
@@ -746,21 +749,8 @@ export default {
             // 获取Api接口
             let detailsApi = this.getApiData("weatherStation_detail");
             await usePostApi(detailsApi.value).then((res) => {
-               // let pointData = res.data.res.data;
-               // 接口数据
-               let pointData = {
-                  id: "101",
-                  stationName: "站点名称",
-                  temp: "22",
-                  baseTemp: "23",
-                  surfaceTemp: "18",
-                  rain: "3000",
-                  visibility: "10000M",
-                  humidity: "69.00",
-                  windDirection: "西北",
-                  windSpeed: "12",
-                  windDirectionAngle: "45",
-               };
+               if (!res.data) return;
+               let pointData = res.data.res.data;
                // 生成内容
                e.target.content = `<div class="map_infoWindow" style="width: 350px">
                   <div class="infoWindow_title">${pointData.stationName}</div>
@@ -806,19 +796,13 @@ export default {
             let detailsApi = this.getApiData("report_info");
             // 情报板详情
             await usePostApi(detailsApi.value, dataFrom).then((res) => {
-               // let pointData = res.data.res.data;
-               // 获取Api接口
-               // 接口数据
-               let pointData = {
-                  id: "101",
-                  name: "情报板名称",
-                  content: "情报板内容情报板内容情报板内容",
-               };
+               if (!res.data) return;
+               let pointData = res.data.res.data.data;
                // 生成内容
                e.target.content = `<div class="map_infoWindow" style="width: 350px">
                   <div class="infoWindow_title">${pointData.name}</div>
                   <div class="infoWindow_line"></div>
-                  <div class="info_video">${pointData.content}</div>
+                  <div class="info_video">${pointData.content || "暂无内容"}</div>
                </div>`;
             });
          }
@@ -860,10 +844,11 @@ export default {
 
          // 交通事故
          if (type == "交通事故") {
+            console.log(`<---类型：${type}--->`);
             let accidentApi = this.getApiData("accident_list");
             await usePostApi(accidentApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("交通事故---->", otherData);
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "交通事故";
@@ -873,11 +858,11 @@ export default {
 
          // 清障救援
          if (type == "清障救援") {
+            console.log(`<---类型：${type}--->`);
             let rescueApi = this.getApiData("rescue_list");
             await usePostApi(rescueApi.value, { param: { type: eventType } }).then((res) => {
-               console.log("清障救援---->", res);
                otherData = res.data.res.data;
-               // otherData = rescueList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "清障救援";
@@ -887,10 +872,11 @@ export default {
 
          // 道口操作
          if (type == "道口操作") {
+            console.log(`<---类型：${type}--->`);
             let junctionApi = this.getApiData("junction_list");
             await usePostApi(junctionApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("道口操作---->", otherData);
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "道口操作";
@@ -900,11 +886,11 @@ export default {
 
          // 施工作业
          if (type == "施工作业") {
+            console.log(`<---类型：${type}--->`);
             let constructApi = this.getApiData("construct_list");
             await usePostApi(constructApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("施工作业---->", otherData);
-               // otherData = constructList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "施工作业";
@@ -914,11 +900,11 @@ export default {
 
          // 信息发布
          if (type == "信息发布") {
+            console.log(`<---类型：${type}--->`);
             let msgApi = this.getApiData("msg_list");
             await usePostApi(msgApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("信息发布---->", otherData);
-               // otherData = msgList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "信息发布";
@@ -928,11 +914,11 @@ export default {
 
          // 障碍物
          if (type == "障碍物") {
+            console.log(`<---类型：${type}--->`);
             let blockApi = this.getApiData("block_list");
             await usePostApi(blockApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("障碍物---->", otherData);
-               // otherData = blockList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "障碍物";
@@ -942,11 +928,11 @@ export default {
 
          // 恶劣天气
          if (type == "恶劣天气") {
+            console.log(`<---类型：${type}--->`);
             let weatherApi = this.getApiData("weather_list");
             await usePostApi(weatherApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("恶劣天气---->", otherData);
-               // otherData = weatherList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "恶劣天气";
@@ -956,11 +942,11 @@ export default {
 
          // 大流量管控
          if (type == "大流量管控") {
+            console.log(`<---类型：${type}--->`);
             let controlApi = this.getApiData("control_list");
             await usePostApi(controlApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("大流量管控---->", otherData);
-               // otherData = controlList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "大流量管控";
@@ -970,11 +956,11 @@ export default {
 
          // 其他
          if (type == "其他") {
+            console.log(`<---类型：${type}--->`);
             let otherApi = this.getApiData("other_list");
             await usePostApi(otherApi.value, { param: { type: eventType } }).then((res) => {
                otherData = res.data.res.data;
-               console.log("其他---->", otherData);
-               // otherData = otherList;
+               console.log("数据：", otherData);
                otherData.list.forEach((item) => {
                   item.levelA = "事件";
                   item.levelB = "其他";
@@ -1026,16 +1012,18 @@ export default {
                   innerIcon = other;
                   break;
             }
+
+            // 背景图
             if (item.state == "未结案" || item.state == "待清障" || item.state == "创建") {
                baseIcon = toBeCleared;
             }
             if (item.state == "已出发" || item.state == "已到达" || item.state == "施救中" || item.state == "到达" || item.state == "施工开始") {
                baseIcon = clearingAway;
             }
-            if (item.state == "已离场" || item.state == "已解脱" || item.state == "施工结束") {
+            if (item.state == "已离场" || item.state == "已解拖" || item.state == "施工结束") {
                baseIcon = obstaclesCleared;
             }
-            if (item.state == "已结案" || item.state == "结案") {
+            if (item.state == "已结案" || item.state == "结案" || item.state == "已施救") {
                baseIcon = closedCase;
             }
             // 设置标记点内容
@@ -1057,42 +1045,16 @@ export default {
       async replaceEventMarkerIcon(e) {
          let point = e.target.getExtData();
 
-         // 移除雷达图
-         if (this.mapCanvas) {
-            this.clearRadarAll();
-         }
-         // 关闭雷达图轨迹
-         if (this.radarPolyline) {
-            this.map.remove(this.radarPolyline);
-         }
-         // 清空之前的弹窗
-         if (this.eventInfoWindow) {
-            this.eventInfoWindowIsShow = false;
-            this.eventInfoWindow = null;
-         }
-         // 关闭情报板坐标点
-         if (this.infoBoardMarkerList.length) {
-            this.infoBoardMarkerList.forEach((item) => {
-               this.map.remove(item);
-            });
-            this.infoBoardMarkerList = [];
-         }
-         // 移除打开的监控和坐标点
-         if (this.videoDialogIsShow) {
-            this.infoVideoMarkerList.forEach((item) => {
-               this.map.remove(item);
-            });
-            this.infoVideoMarkerList = [];
+         console.log("点击事件坐标点：", point);
 
-            this.videoDialogIsShow = false;
-            this.videoTabsList = [];
-            this.activeTabs = "";
-         }
+         // 重置地图图层
+         this.clickMap();
 
          // 储存详情数据
          let pointData = {};
          // 储存接口字段
          let detailsField = "";
+         // 判断接口字段
          switch (point.levelB) {
             case "交通事故":
                detailsField = "accident_info";
@@ -1150,6 +1112,7 @@ export default {
                pointData.name = "其他";
             }
          });
+
          // 判断图标
          if (point.state == "未结案" || point.state == "到达" || point.state == "施工开始") {
             pointData.videoIcon = 1;
@@ -1165,11 +1128,10 @@ export default {
             pointData.videoIcon = 1;
             pointData.wreckerIcon = 2;
          }
-         if (point.state == "已离场" || point.state == "已解脱") {
+         if (point.state == "已离场" || point.state == "已解拖") {
             pointData.videoIcon = 2;
             pointData.wreckerIcon = 2;
          }
-
          if (point.levelB != "信息发布") {
             pointData.infoboardIcon = 1;
          }
@@ -1262,7 +1224,7 @@ export default {
          this.$refs["event_infowindow"].coloseInfoWindow();
 
          // 获取20Kkm经纬度
-         let radarPoint = this.calculateLl(pointData.longitude, pointData.latitude, 10000);
+         let radarPoint = this.calculateLl(pointData.longitude, pointData.latitude, 12000);
 
          // 添加地图Canvas
          const CanvasLayer = new AMap.CanvasLayer({
@@ -1284,8 +1246,14 @@ export default {
             // 开启地图缩放
             this.map.setStatus({ zoomEnable: true });
          });
+
+         // 设置地址中心点
+         this.map.setCenter([119.567041, 31.374346]);
+
          // 添加雷达图内的坐标点
-         this.addRadarWreckerPoint(markData);
+         setTimeout(() => {
+            this.addRadarWreckerPoint(markData);
+         }, 1450);
       },
 
       // 计算雷达直径经纬度
@@ -1472,55 +1440,108 @@ export default {
          // 创建图片
          let markerIcon = new AMap.Icon({
             image: radarWrecker,
-            imageSize: new AMap.Size(55, 55),
+            imageSize: new AMap.Size(74, 124),
          });
+
+         let pointType = true;
+
+         console.log("雷达坐标点：", markData.list);
 
          // 添加雷达坐标点
          markData.list.forEach((item) => {
-            // 添加坐标点
-            marker = new AMap.Marker({
-               icon: markerIcon,
-               position: [Number(item.longitude), Number(item.latitude)],
-               offset: new AMap.Pixel(-25, -30),
-               zIndex: 12,
-               extData: item,
-            });
-
-            // 添加坐标点弹窗内容
-            marker.setLabel({
-               content: `<div class="map_infoWindow" style="width: 280px">
-                  <div class="infoWindow_title">${item.carNo}</div>
-                  <div class="infoWindow_line"></div>
-                  <div class="info_carInfo">
-                     <img src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg" />
-                     <div class="carInfo_content">
-                        ${item.state == "0" ? `<div>可用</div>` : ""}
-                        ${item.state == "1" ? `<div style="color: #b2fffc">任务中</div>` : ""}
-                        ${item.state == "2" ? `<div style="color: red">不可用</div>` : ""}
-                        <div>距离：${item.distance}km</div>
-                        <div>预计到达时间：${item.preArriveMinite}分钟</div>
-                     </div>
-                  </div>
-                  ${item.state == "0" ? `<div class="info_button" onclick="noticeObstacles()">通知清障</div>` : ""}
-                  ${item.state == "1" ? `<div class="info_button_notice">已通知</div>` : ""}
-                  ${item.state == "2" ? "" : ""}
-               </div>`,
-               offset: new AMap.Pixel(1, 13),
-            });
-
-            // 添加坐标点
-            this.map.add(marker);
-            // 储存添加的点
-            markerList.push(marker);
-
             if (item.state == "1") {
+               pointType = false;
+               // 添加坐标点;
+               marker = new AMap.Marker({
+                  icon: markerIcon,
+                  position: [Number(item.longitude), Number(item.latitude)],
+                  offset: new AMap.Pixel(-37, -120),
+                  zIndex: 12,
+                  extData: item,
+               });
+
+               marker.on("click", this.clickRadarPoint);
+
+               // 添加坐标点
+               this.map.add(marker);
+               // 储存添加的点
+               markerList.push(marker);
+
                let startPoint = new AMap.LngLat(Number(item.longitude), Number(item.latitude));
                let endPoint = new AMap.LngLat(Number(this.eventInfoData.longitude), Number(this.eventInfoData.latitude));
+
                this.creatDriving(startPoint, endPoint);
+
+               // 储存雷达坐标点
+               this.radarMarkerList = markerList;
             }
          });
-         // 储存雷达坐标点
-         this.radarMarkerList = markerList;
+
+         if (pointType) {
+            markData.list.forEach((item) => {
+               // 添加坐标点;
+               marker = new AMap.Marker({
+                  icon: markerIcon,
+                  position: [Number(item.longitude), Number(item.latitude)],
+                  offset: new AMap.Pixel(-37, -120),
+                  zIndex: 12,
+                  extData: item,
+               });
+
+               marker.on("click", this.clickRadarPoint);
+
+               // 添加坐标点
+               this.map.add(marker);
+               // 储存添加的点
+               markerList.push(marker);
+               // 储存雷达坐标点
+               this.radarMarkerList = markerList;
+            });
+         }
+      },
+
+      // 点击雷达扫描处车辆
+      async clickRadarPoint(e) {
+         // 清空之前的弹窗
+         if (this.infoWindow) {
+            this.infoWindow.close();
+            this.infoWindow = null;
+            return;
+         }
+
+         // 获取点位数据
+         let point = e.target.getExtData();
+
+         // 创建弹窗
+         let infoWindow = new AMap.InfoWindow({ anchor: "top-left", isCustom: true, offset: new AMap.Pixel(33, 13) });
+
+         // 生成内容
+         e.target.content = await `<div id="noticeWindow"  class="map_infoWindow" style="width: 350px">
+            <div class="infoWindow_title">${point.carNo}</div>
+            <div class="infoWindow_line"></div>
+            <div class="info_carInfo">
+               <img src="${yellowCar}" />
+               <div class="carInfo_content">
+                  ${point.state == "0" ? `<div>可用</div>` : ""}
+                  ${point.state == "1" ? `<div style="color: #b2fffc">任务中</div>` : ""}
+                  ${point.state == "2" ? `<div style="color: red">不可用</div>` : ""}
+                  <div>车型：${point.carType || ""}</div>
+                  <div>距离：${point.distance || ""}km</div>
+                  <div>预计到达时间：${point.preArriveMinite || 0}分钟</div>
+               </div>
+            </div>
+            ${point.state == "0" ? `<div  class="info_button" onclick="noticeObstacles()">通知清障</div>` : ""}
+            ${point.state == "1" ? `<div class="info_button_notice">已通知</div>` : ""}
+            ${point.state == "2" ? "" : ""}
+         </div>`;
+
+         // 储存当前弹窗
+         this.infoWindow = infoWindow;
+         // 渲染弹窗
+         await infoWindow.setContent(e.target.content);
+         await infoWindow.open(this.map, e.target.getPosition());
+         // 保存当前车辆数据
+         this.radarCarData = point;
       },
 
       // 创建路线规划
@@ -1537,14 +1558,16 @@ export default {
             driving.search(startPoint, endPoint, function (status, result) {
                let lineList = [];
 
-               let _result = result.routes[0].steps;
-               _result.forEach((item) => {
-                  item.path.forEach((e) => {
-                     lineList.push([e.lng, e.lat]);
+               if (result.routes) {
+                  let _result = result.routes[0].steps;
+                  _result.forEach((item) => {
+                     item.path.forEach((e) => {
+                        lineList.push([e.lng, e.lat]);
+                     });
                   });
-               });
 
-               resolve(lineList);
+                  resolve(lineList);
+               }
             });
          }).then((data) => {
             // 绘制轨迹
@@ -1552,8 +1575,9 @@ export default {
                map: map,
                path: data,
                showDir: true,
-               strokeColor: "#28F", //线颜色
+               strokeColor: "#FFC000", //线颜色
                strokeWeight: 6, //线宽
+               opacity: 1,
             });
             map.add(this.radarPolyline);
          });
@@ -1619,8 +1643,11 @@ export default {
             this.infoWindow.close();
          }
          // 移除天气图片
-         if (this.imageLayerr) {
-            this.map.remove(this.imageLayerr);
+         if (this.imageLayerrList.length) {
+            imageLayerrList.froEach((item) => {
+               this.map.remove(item);
+            });
+            this.imageLayerrList = [];
          }
          // 当前图层坐标点数组
          let pointList = [];
@@ -1649,12 +1676,16 @@ export default {
             if (item == 8) {
                let detailsApi = this.getApiData("weather_detail");
                usePostApi(detailsApi.value).then((res) => {
-                  this.imageLayerr = new AMap.ImageLayer({
-                     url: cloudy,
-                     bounds: new AMap.Bounds([118.75, 32.11], [118.88, 32.0]), //图片矩形范围
-                     zooms: [2, 20],
+                  let dataList = res.data.res.data;
+                  dataList.forEach((item) => {
+                     let imageLayerr = new AMap.ImageLayer({
+                        url: item.imgUrl,
+                        bounds: new AMap.Bounds([Number(item.lon1), Number(item.lat1)], [Number(item.lon2), Number(item.lat2)]), //图片矩形范围
+                        zooms: [2, 20],
+                     });
+                     this.map.add(imageLayerr);
+                     this.imageLayerrList.push(imageLayerr);
                   });
-                  this.map.add(this.imageLayerr);
                });
             }
             // 气象监测点
@@ -1685,6 +1716,7 @@ export default {
                // 清障车
                if (item == 5) {
                   if (vehicleData.clearList.length) {
+                     console.log("清障车：", vehicleData.clearList);
                      vehicleData.clearList.forEach((item) => {
                         item.levelA = "车辆";
                         item.levelB = "清障车";
@@ -1695,6 +1727,7 @@ export default {
                // 危化品车
                if (item == 6) {
                   if (vehicleData.dangerList.length) {
+                     console.log("危化品车：", vehicleData.dangerList);
                      vehicleData.dangerList.forEach((item) => {
                         item.levelA = "车辆";
                         item.levelB = "危化品车";
@@ -1702,12 +1735,13 @@ export default {
                      pointList.push(vehicleData.dangerList);
                   }
                }
-               // 警车
+               // 警戒车
                if (item == 7) {
                   if (vehicleData.warnList.length) {
+                     console.log("警戒车：", vehicleData.warnList);
                      vehicleData.warnList.forEach((item) => {
                         item.levelA = "车辆";
-                        item.levelB = "警车";
+                        item.levelB = "警戒车";
                      });
                      pointList.push(vehicleData.warnList);
                   }
@@ -1784,7 +1818,7 @@ export default {
                      });
                   });
                } else {
-                  if (i != "weatherStationList") {
+                  if (i != "weatherStationList" && i != "screenList" && i != "videoList") {
                      dataList[i].forEach((item) => {
                         pointList.push({
                            lnglat: [Number(item.longitude), Number(item.latitude)],
@@ -1900,7 +1934,7 @@ export default {
                case "危化品车":
                   icon = dangerousCarDefault;
                   break;
-               case "警车":
+               case "警戒车":
                   icon = policeCarDefault;
                   break;
                case "气象监测点":
@@ -1953,8 +1987,37 @@ export default {
       noticeObstacles(marker) {
          event.stopPropagation();
 
+         // 关闭雷达图
+         if (this.mapCanvas) {
+            this.mapCanvas.hide();
+            this.mapCanvas = null;
+         }
+
+         // 关闭雷达图轨迹
+         if (this.radarPolyline) {
+            this.map.remove(this.radarPolyline);
+         }
+
          let noticeWreckerApi = this.getApiData("rescue_noticeWrecker");
-         usePostApi(noticeWreckerApi.value, { id: this.eventInfoData.id }).then((res) => {});
+         usePostApi(noticeWreckerApi.value, { id: this.radarCarData.id }).then((res) => {
+            console.log("通知清障--->");
+         });
+
+         return;
+
+         let startPoint = new AMap.LngLat(Number("119.487569"), Number("31.38213"));
+         let endPoint = new AMap.LngLat(Number("119.567041"), Number("31.374346"));
+
+         this.creatDriving(startPoint, endPoint);
+
+         let noticeWindow = $("#noticeWindow");
+         noticeWindow.css("display", "none");
+
+         // 关闭事件弹窗
+         if (this.eventInfoWindowIsShow) {
+            this.eventInfoWindowIsShow = false;
+            this.eventInfoWindow = null;
+         }
       },
 
       // 添加弹窗监控坐标点
@@ -2114,13 +2177,13 @@ export default {
 
       // 切换事件点
       do_EventCenter_changeEventType({ value }) {
-         console.log("切换事件点--->", value.value);
          this.clickMap();
          this.handleEventData(value.value, value.type);
+         console.log(`<--触发二开逻辑控制-->`, value);
       },
 
       // 刷新地图
-      do_EventCenter_refreshMap({ value }) {
+      do_EventCenter_refreshMap() {
          this.clickMap();
          this.map.setZoomAndCenter(10, [119.27, 31.56]);
       },

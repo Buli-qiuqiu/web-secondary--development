@@ -32,7 +32,7 @@ export const layerAllOption = [
    {
       id: 7,
       type: "car",
-      name: "警车",
+      name: "警戒车",
    },
    {
       id: 8,

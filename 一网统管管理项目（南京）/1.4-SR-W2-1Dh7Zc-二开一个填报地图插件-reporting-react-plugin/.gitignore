@@ -12,6 +12,9 @@ dist
 build
 es
 lib
+demo
+dumi
+config
 
 # misc
 .DS_Store

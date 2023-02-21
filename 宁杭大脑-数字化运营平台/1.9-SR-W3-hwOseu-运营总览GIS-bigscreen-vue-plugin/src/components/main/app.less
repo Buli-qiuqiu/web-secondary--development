@@ -1,8 +1,13 @@
+@font-face {
+   font-family: "Orbitron";
+   src: url("../../text/Orbitron-Medium.ttf");
+}
+
 // 最外层
 .outermast {
    width: 100%;
    height: 100%;
-   height: 780px;
+   // height: 780px;
    position: relative;
    // 地图大小
    #mapContent {
@@ -441,6 +446,7 @@
             height: 100%;
          }
          .carInfo_content {
+            margin-top: 15px;
             margin-left: 12px;
             display: flex;
             flex-direction: column;
@@ -466,6 +472,7 @@
          text-align: center;
          margin: 0 8px;
          cursor: pointer;
+         font-size: 12px;
       }
 
       .info_button_notice {

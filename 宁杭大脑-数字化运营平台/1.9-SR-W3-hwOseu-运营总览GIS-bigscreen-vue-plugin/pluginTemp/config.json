@@ -1,10 +1,10 @@
 {
-  "id": "b41e2b4f-c32c-4586-8cef-17d288809698",
+  "id": "1843b987-150e-4c55-b59c-f4616860f200",
   "type": "bigscreen",
-  "main": "app.4c11214d.js",
+  "main": "app.a2c7a1f6.js",
   "version": "2",
-  "requirement-number": "需求编号",
-  "requirement-name": "需求名称",
+  "requirement-number": "SR-W50-baq8Sf",
+  "requirement-name": "运营总览GIS",
   "props": {
     "img": "APP_0001.png",
     "disableimg": "disabled_custom_table.png",

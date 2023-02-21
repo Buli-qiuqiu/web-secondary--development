@@ -212,45 +212,45 @@ export const rescueList = {
       {
          id: "134",
          state: "待清障",
-         longitude: "119.40584",
-         latitude: "31.165999",
+         longitude: "119.567041",
+         latitude: "31.374346",
       },
-      {
-         id: "135",
-         state: "已出发",
-         longitude: "119.522868",
-         latitude: "31.169309",
-      },
-      {
-         id: "136",
-         state: "已到达",
-         longitude: "119.559604",
-         latitude: "31.157852",
-      },
-      {
-         id: "137",
-         state: "施救中",
-         longitude: "119.618312",
-         latitude: "31.14845",
-      },
-      {
-         id: "138",
-         state: "已离场",
-         longitude: "119.635821",
-         latitude: "31.178122",
-      },
-      {
-         id: "139",
-         state: "已解脱",
-         longitude: "119.695216",
-         latitude: "31.164903",
-      },
-      {
-         id: "140",
-         state: "已结案",
-         longitude: "119.79169",
-         latitude: "31.190751",
-      },
+      // {
+      //    id: "135",
+      //    state: "已出发",
+      //    longitude: "119.522868",
+      //    latitude: "31.169309",
+      // },
+      // {
+      //    id: "136",
+      //    state: "已到达",
+      //    longitude: "119.559604",
+      //    latitude: "31.157852",
+      // },
+      // {
+      //    id: "137",
+      //    state: "施救中",
+      //    longitude: "119.618312",
+      //    latitude: "31.14845",
+      // },
+      // {
+      //    id: "138",
+      //    state: "已离场",
+      //    longitude: "119.635821",
+      //    latitude: "31.178122",
+      // },
+      // {
+      //    id: "139",
+      //    state: "已解脱",
+      //    longitude: "119.695216",
+      //    latitude: "31.164903",
+      // },
+      // {
+      //    id: "140",
+      //    state: "已结案",
+      //    longitude: "119.79169",
+      //    latitude: "31.190751",
+      // },
    ],
 };
 // 道口操作

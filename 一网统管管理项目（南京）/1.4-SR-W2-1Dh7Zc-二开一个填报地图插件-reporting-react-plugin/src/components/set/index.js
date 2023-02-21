@@ -8,7 +8,7 @@ import useDelegator from "../../UseDelegator";
 import eventActionDefine from "../../msgCompConfig";
 
 const Design = (props) => {
-  const { onChange } = props
+  const { onChange,control$={} } = props
   const Event_Center_getName = () => {
     return `${props.formConfig?.form_name}-${props.component.columnStyle.title}`;
   };
@@ -58,7 +58,7 @@ const Design = (props) => {
 
   return <>
     <div 
-      style={{display: 'flex',alignItems: 'center',width: 50,height: 50}} 
+      style={{display: (control$?.hide ? 'none' : 'flex'),alignItems: 'center',width: 50,height: 50,pointerEvents:(control$?.disabled ? 'none' : 'auto')}} 
       onClick={()=>{
         setIsModalOpen(true)
       }}

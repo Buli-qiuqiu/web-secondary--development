@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" ref="canvas-secondary" class="canvas-secondary">
+  <div :id="id" ref="canvas-secondary" class="canvas-secondary-erkai">
     <div style="display: flex">
       <svg
         t="1673336118334"
@@ -13,7 +13,7 @@
       >
         <path d="M1024 0l-447.7952 1024-118.016-458.1888L0 448.2048z" fill="#3798F5" p-id="6577"></path>
       </svg>
-      <div v-show="showFlag">
+      <div v-show="showFlag" style="line-height: 0">
         <span
           style="margin-left: 5px"
           :key="keyFlag"
@@ -191,3 +191,8 @@ export default {
   },
 };
 </script>
+<style lang="less" scoped>
+.canvas-secondary-erkai{
+  background-color: transparent !important;
+}
+</style>

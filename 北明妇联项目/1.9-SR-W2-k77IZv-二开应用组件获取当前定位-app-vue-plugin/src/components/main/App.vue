@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" ref="app-secondary" class="app-secondary"></div>
+  <div :id="id" ref="app-secondary" class="app-secondary">-----------------------------</div>
 </template>
 <script>
 // import { this.appVariables, mockChangeCustomConfig } from "../development/mockData";
@@ -64,7 +64,18 @@ export default {
               coordinate: `${latitude},${longitude}`,
             };
             requeryAddressByCoordinate(info).then((res) => {
-              this.triggerEvent("nowCitycodeChange", res.data.address_reference.town.id);
+              alert(
+                JSON.stringify({
+                  citycode: res.data.address_reference.town.id,
+                  latitude,
+                  longitude,
+                })
+              );
+              this.triggerEvent("nowCitycodeChange", {
+                citycode: res.data.address_reference.town.id,
+                latitude,
+                longitude,
+              });
             });
           },
           fail(error) {

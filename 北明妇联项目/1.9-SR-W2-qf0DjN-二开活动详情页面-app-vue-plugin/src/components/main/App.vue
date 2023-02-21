@@ -45,7 +45,7 @@
       </div>
       <div class="msgItem">
         <span class="textTitle">报名人数：</span>
-        <span class="textCon">{{ baoMingNum +'人/'+ (activeMsg.quota_limit || 0) }}</span>
+        <span class="textCon">{{ baoMingNum +'/'+ (activeMsg.quota_limit || 0) }}</span>
       </div>
       <div class="msgItem">
         <span class="textTitle">活动地址：</span>
@@ -62,7 +62,8 @@
     <div class="pingLunBox">
       <div class="pingLunBoTtitle">活动评论（{{ allPingLunLength }}）</div>
       <div class="pingLunList">
-        <van-list v-model="loading" :finished="finished" :offset="5" finished-text="没有更多评论了" @load="onLoad">
+        <!-- 滚动加载 -->
+        <van-list v-model="loading" :finished="finished" :offset="50" finished-text="没有更多评论了" @load="onLoad" :immediate-check="false">
           <div class="pingLunItem" v-for="(item,index) in pingLunList" :key="index">
             <img class="pingLunImg" :src="item.url" alt="">
             <div class="pingLunCon">
@@ -74,12 +75,24 @@
             </div>
           </div>
         </van-list>
+        <!-- 点击加载 -->
+        <!-- <div class="pingLunItem" v-for="(item,index) in pingLunList" :key="index">
+          <img class="pingLunImg" :src="item.url" alt="">
+          <div class="pingLunCon">
+            <div class="userNameBox">
+              <span class="userInfo">{{ item.critic }}</span>
+              <span class="pingTime">{{ item.comment_time }}</span>
+            </div>
+            <div class="pngCon">{{ item.comment_content }}</div>
+          </div>
+        </div>
+        <div v-if="finished" class="notMore">没有更多评论了</div>
+        <div v-else class="notMore" @click="onLoad">点击加载更多评论</div> -->
       </div>
-      <!-- <div class="notMore">没有更多评论了</div> -->
     </div>
     <!-- 活动总结-接完 -->
     <div v-if="activeMsg.report_status == 0" class="summarize">
-      <div class="summarizeTtitle">活动总结</div>
+      <div class="summarizeTtitle">活动集锦</div>
       <div class="summarizeImgBox">
         <img class="imgSummarize" :src="headImg" alt="">
         <span class="imgTitle">{{ activeOverMsg.nickname }}</span>
@@ -96,10 +109,10 @@
       </div>
     </div>
     <!-- 发布活动总结-接完 -->
-    <div v-if="activeMsg.report_status == 1 && adminInfoId == createMemberId" class="summarizeOver">
-      <div class="summarizeTtitle">活动总结</div>
+    <div v-if="activeMsg.report_status == 0 && adminInfoId == createMemberId" class="summarizeOver">
+      <div class="summarizeTtitle">活动集锦</div>
       <div class="subOver" @click="subActiveOver">
-        发布活动总结
+        发布活动集锦
         <img class="subOverImg" src="../../../pluginTemp/images/goon.png" alt="">
       </div>
     </div>
@@ -137,6 +150,7 @@
 import Vue from 'vue';
 import moment from 'moment';
 import {
+  isLogin, // 查询用户是否登录
   queryUser, // 1 查询用户
   wxJsSdk, // 1 JS-SDK签名算法
   queryActiveMsg, // 1 查询活动
@@ -165,6 +179,8 @@ import {
   queryLiuLanNum,// 1 浏览次数+1
 } from "../../api/asset.js";
 import { Button, Icon, Popup, Field, List, Toast, Dialog } from 'vant';
+// 引入 Vconsole
+import Vconsole from 'vconsole';
 
 Vue.use(Button);
 Vue.use(Icon);
@@ -179,6 +195,7 @@ const getQueryString = name => {
   const r = window.location.search.substr(1).match(reg);
   if (r != null) return r[1];
   return "b0cef8e6c99744e0b6df57e042c4c415";
+  // return "";
 };
 
 export default {
@@ -217,7 +234,7 @@ export default {
       activeMsg: {}, // 活动信息
       baoMingList: [], // 报名列表
       baoMingNum: 0, // 报名人数
-      pageNum: 1, // 评论页数
+      pageNum: 0, // 评论页数
       loading: false,
       finished: false,
       activeOverMsg: {}, //活动总结
@@ -227,12 +244,15 @@ export default {
     };
   },
   mounted() {
+    // 使用
+    // new Vconsole();
     this.activeOverUrl = this.customConfig?.activeOverUrl ? this.customConfig?.activeOverUrl : "";
     this.avtivesId = getQueryString('activityid');
-    this.cookeiId = this.getcookie('token');
-    if (this.cookeiId) {
-      this.queryUserInfo();
-    }
+    // this.cookeiId = this.getcookie('token');
+    // console.log('this.cookeiId', this.cookeiId);
+    // if (this.cookeiId) {
+    this.queryUserInfo();
+    // }
     //此方法封装了事件注册，不可删除
     this.mainInit(this); 
     this.getActiveMsgs(this.avtivesId);
@@ -311,13 +331,13 @@ export default {
       let _that = this;
       let message = {
         url: encodeURIComponent(window.location.href.split("#")[0]),
+        // url: window.location.href.split("#")[0],
       };
       let { data: res } = await wxJsSdk(message);
       console.log('JS-SDK签名算法',res);
-      
       if (window.wx) {
         window.wx.config({
-          debug: true, // 开启调试模式,调用的所有 api 的返回值会在客户端 alert 出来，若要查看传入的参数，可以在 pc 端打开，参数信息会通过 log 打出，仅在 pc 端时才会打印。
+          debug: false, // 开启调试模式,调用的所有 api 的返回值会在客户端 alert 出来，若要查看传入的参数，可以在 pc 端打开，参数信息会通过 log 打出，仅在 pc 端时才会打印。
           appId: res.appId, // 必填，公众号的唯一标识
           timestamp: res.timestamp, // 必填，生成签名的时间戳
           nonceStr: res.nonceStr, // 必填，生成签名的随机串
@@ -329,20 +349,22 @@ export default {
           if (latitude && longitude) {
             latitude = Number(latitude);
             longitude = Number(longitude);
+            // console.log("经度", latitude, "维度", longitude);
             window.wx.openLocation({
-              latitude: latitude ? latitude : 0,//维度
-              longitude: longitude ? longitude : 0,//经度
+              latitude: latitude || 0,//维度
+              longitude: longitude || 0,//经度
               success: (resp) => {},
               fail(error) {
-                Notify({ type: 'warning', message: '跳转失败' });
+                console.log('跳转失败error', error);
+                Toast.fail('跳转失败');
               },
             });
           } else {
-            Notify({ type: 'warning', message: '经纬度缺失' });
+            Toast.fail('经纬度缺失');
           }
         });
       }else {
-        Notify({ type: 'warning', message: '未找到WX' });
+        Toast.fail('未找到WX');
       }
     },
 
@@ -378,7 +400,6 @@ export default {
         this.getAddGuanZhu();
         this.getActiveType();
       }else {
-        // Notify({ type: 'warning', message: '关注失败' });
         Toast.fail('关注失败');
       }
       // console.log('增加关注数据', res);
@@ -403,7 +424,6 @@ export default {
         this.getDelGuanZhu();
         this.getActiveType();
       } else {
-        // Notify({ type: 'warning', message: '关注失败' });
         Toast.fail('放弃关注失败');
       }
       // console.log('增加关注数据', res);
@@ -474,7 +494,6 @@ export default {
           this.getAddCollect();
           this.getActiveType();
         } else {
-          // Notify({ type: 'warning', message: '关注失败' });
           Toast.fail('收藏失败');
         }
       }
@@ -486,9 +505,10 @@ export default {
         user_id: this.adminInfoId
       }
       await queryAddCollect(params);
+      this.getActiveMsgs(this.avtivesId);
       // console.log('收藏数据+1', res);
     },
-    // 收藏数据
+    // -收藏数据
     async getDelCollectData() {
       if (this.adminInfoId == "") {
         Dialog.confirm({
@@ -513,18 +533,18 @@ export default {
           this.getDelCollect();
           this.getActiveType();
         } else {
-          // Notify({ type: 'warning', message: '关注失败' });
           Toast.fail('取消收藏失败');
         }
       }
     },
-    // 收藏数据+1
+    // 收藏数据-1
     async getDelCollect() {
       const params = {
         data_id: this.avtivesId,
         user_id: this.adminInfoId
       }
       await queryDelCollect(params);
+      this.getActiveMsgs(this.avtivesId);
       // console.log('收藏数据+1', res);
     },
 
@@ -553,7 +573,6 @@ export default {
           this.getAddCollect();
           this.getActiveType();
         } else {
-          // Notify({ type: 'warning', message: '关注失败' });
           Toast.fail('点赞失败');
         }
       }
@@ -588,7 +607,6 @@ export default {
           this.getDelDianZan();
           this.getActiveType();
         } else {
-          // Notify({ type: 'warning', message: '关注失败' });
           Toast.fail('取消点赞失败');
         }
       }
@@ -628,14 +646,13 @@ export default {
             this.paoMingAddNum();
             this.getActiveType();
           } else {
-            // Notify({ type: 'warning', message: '关注失败' });
             Toast.fail('报名失败');
           }
         }else {
           Dialog.confirm({
             message: '确认取消报名？',
           }).then(() => {
-            this.paoMingDelNum();
+            this.paoMingDel();
           }).catch(() => {
           });
         }
@@ -648,10 +665,11 @@ export default {
         user_id: this.adminInfoId
       }
       await queryAddBaoMingData(params);
+      this.getBaoMings(this.avtivesId);
       // console.log('收藏数据+1', res);
     },
     // 取消报名
-    async paoMingDelNum() {
+    async paoMingDel() {
       const params = {
         data_id: this.avtivesId,
         user_id: this.adminInfoId
@@ -661,7 +679,6 @@ export default {
         this.paoMingDelNum();
         this.getActiveType();
       } else {
-        // Notify({ type: 'warning', message: '关注失败' });
         Toast.fail('取消报名失败');
       }
     },
@@ -672,6 +689,7 @@ export default {
         user_id: this.adminInfoId
       }
       await queryDelBaoMingData(params);
+      this.getBaoMings(this.avtivesId);
       // console.log('收藏数据+1', res);
     },
 
@@ -691,6 +709,9 @@ export default {
       let res = await queryPingLunData(params);
       if (res.status == 200) {
         this.isPingLun = false;
+        this.pingLunMessage = "";
+        this.getPingLunNum();
+        // this.getPingLuns(this.avtivesId);
       } else {
         Toast.fail('评论失败');
       }
@@ -734,8 +755,9 @@ export default {
     },
     // 评论列表
     getPingLuns(id) {
+      this.pingLunList = [];
       const params = {
-        pageNum: 5,
+        pageNum: 10,
         pageSize: this.pageNum,
         data_id: id
       }
@@ -749,8 +771,8 @@ export default {
         this.pingLunList = this.pingLunList.concat(arryList);
         // console.log('评论列表', this.pingLunList);
         // 加载状态结束
-        this.loading = false;
-        this.getPingLunNum(this.avtivesId);
+        // this.loading = false;
+        this.getPingLunNum();
       }).catch(err=>{
         // 加载状态结束
         this.finished = true;
@@ -762,7 +784,7 @@ export default {
     onLoad() {
       this.pageNum = this.pageNum + 1;
       const params = {
-        pageNum: 5,
+        pageNum: 10,
         pageSize: this.pageNum,
         data_id: this.avtivesId
       }
@@ -774,10 +796,7 @@ export default {
           return x;
         })
         this.pingLunList = this.pingLunList.concat(arryList);
-        // console.log('评论列表', this.pingLunList);
-        // 加载状态结束
-        this.loading = false;
-        this.getPingLunNum(this.avtivesId);
+        this.getPingLunNum();
       }).catch(err=>{
         // 加载状态结束
         this.finished = true;
@@ -797,6 +816,10 @@ export default {
       // 数据全部加载完成
       if (this.pingLunList.length >= this.allPingLunLength) {
         this.finished = true;
+      } else {
+        // 加载状态结束
+        this.loading = false;
+        this.finished = false;
       }
     },
     // 活动总结表
@@ -999,10 +1022,22 @@ export default {
     .pingLunList {
       width: 100%;
       margin-top: 17px;
-      height: 360px;
+      // height: 800px;
+      max-height: 850px;
+      min-height: 90px;
       overflow-y: scroll;
       &::-webkit-scrollbar {
         width: 0;
+      }
+      /deep/.van-list__finished-text {
+        margin-top: 30px;
+        text-align: center;
+        height: 17px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 17px;
       }
       .pingLunItem {
         width: 100%;
@@ -1237,7 +1272,7 @@ export default {
   }
   /deep/.van-popup{
     .van-field__word-limit {
-      text-align: left !important;;
+      text-align: left !important;
     }
     .fabuBtn {
       position: absolute;

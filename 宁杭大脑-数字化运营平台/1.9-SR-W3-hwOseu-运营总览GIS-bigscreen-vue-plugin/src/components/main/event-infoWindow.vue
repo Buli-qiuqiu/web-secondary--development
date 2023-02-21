@@ -541,10 +541,12 @@ export default {
          }
          // 获取接口
          let detailsApi = await this.$parent.getApiData(detailsField);
-         // 获取情报板数据
+         // 获取摄像头数据
          await usePostApi(detailsApi.value).then((res) => {
-            let videoData = res.data.res.data;
-            this.$parent.addVideoMarker(videoData.list);
+            if (res.data) {
+               let videoData = res.data.res.data;
+               this.$parent.addVideoMarker(videoData.list);
+            }
          });
       },
 
@@ -552,8 +554,24 @@ export default {
       async clickWreckerIcon(e) {
          e.stopPropagation();
 
+         // let wreckerData = {
+         //    list: [
+         //       {
+         //          carId: "2",
+         //          carNo: "苏·AP3995",
+         //          state: "0",
+         //          distance: "9.5",
+         //          preArriveMinite: "12",
+         //          longitude: "119.487569",
+         //          latitude: "31.38213",
+         //          carType: "奔驰44T重型清障车 黄色",
+         //       },
+         //    ],
+         // };
+         // this.$parent.createMapCanvas(this.eventInfoData, wreckerData);
+
          let detailsApi = await this.$parent.getApiData("rescue_searchWrecker");
-         // 获取情报板数据
+         // 获取情报板数据;
          await usePostApi(detailsApi.value, { param: { id: this.eventInfoData.id } }).then((res) => {
             let wreckerData = res.data.res.data;
             this.$parent.createMapCanvas(this.eventInfoData, wreckerData);
@@ -597,9 +615,11 @@ export default {
          let detailsApi = await this.$parent.getApiData(detailsField);
          // 获取情报板数据
          await usePostApi(detailsApi.value, { param: { id: this.eventInfoData.id } }).then((res) => {
-            let infoBoardData = res.data.res.data;
-            infoBoardData.levelB = "情报板";
-            this.$parent.addInfoBoardMarker(infoBoardData);
+            if (res.data.res.data) {
+               let infoBoardData = res.data.res.data;
+               infoBoardData.levelB = "情报板";
+               this.$parent.addInfoBoardMarker(infoBoardData);
+            }
          });
       },
 

@@ -16,6 +16,7 @@ const Child = ({
   configuration: propsConfiguration,
   theme,
   child_id,
+  control$={},
   index,
   ...other
 }) => {
@@ -88,7 +89,7 @@ const Child = ({
   const [isModalOpen,setIsModalOpen] = useState(false)
   return <>
     <div 
-      style={{display: 'flex',alignItems: 'center',width: 50,height: 50}} 
+      style={{display: (control$?.hide ? 'none' : 'flex'),alignItems: 'center',width: 50,height: 50,pointerEvents:(control$?.disabled ? 'none' : 'auto')}} 
       onClick={()=>{
         setIsModalOpen(true)
       }}
