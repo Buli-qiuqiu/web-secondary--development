@@ -3,6 +3,7 @@
     <div class="statisticalHead">
       <el-radio-group v-model="reportType" text-color="#1B85FF" @change="reportChange">
         <el-radio-button class="dateBtn" label="日报"></el-radio-button>
+        <el-radio-button class="dateBtn" label="周报"></el-radio-button>
         <el-radio-button class="dateBtn" label="月报"></el-radio-button>
         <el-radio-button class="dateBtn" label="年报"></el-radio-button>
       </el-radio-group>
@@ -12,6 +13,19 @@
         <div class="leftBox">
           <!-- <el-button class="marginR" type="primary" icon="el-icon-arrow-left" size="small" @click="addDate('reduce')">{{ pickerUp }}</el-button> -->
           <el-date-picker v-show="reportType === '日报'" class="marginR" :clearable="false" v-model="selectDate" size="small" :editable="false" value-format="yyyy-MM-dd" key="date" type="date" @change="getReportsData"></el-date-picker>
+          <el-date-picker
+            v-show="reportType === '周报'"
+            class="marginR zhouBao"
+            v-model="selectDateDate"
+            size="small"
+            :editable="false"
+            value-format="yyyy-MM-dd"
+            key="week"
+            type="daterange"
+            range-separator="-"
+            :picker-options="pickerOptions"
+            @change="getReportsData"
+          ></el-date-picker>
           <el-date-picker v-show="reportType === '月报'" class="marginR" :clearable="false" v-model="selectDate" size="small" :editable="false" value-format="yyyy-MM" key="month" type="month" @change="getReportsData"></el-date-picker>
           <el-date-picker v-show="reportType === '年报'" class="marginR" :clearable="false" v-model="selectDate" size="small" :editable="false" value-format="yyyy" key="year" type="year" @change="getReportsData"></el-date-picker>
           <!-- <el-button class="marginR" type="primary" size="small" @click="addDate('add')">
@@ -138,22 +152,69 @@ export default {
       return this.reportType === '日报' ? '下一日' : this.reportType === '月报' ? '下一月' : '下一年'
     },
     powerGeneration() {
-      return this.reportType === '日报' ? '日发电时段' : this.reportType === '月报' ? '月发电时段' : '年发电时段'
+      switch (this.reportType) {
+        case "日报":
+          return "日发电时段"
+        case "周报":
+          return "周发电时段"
+        case "月报":
+          return "月发电时段"
+        case "年报":
+          return "年发电时段"
+      }
     },
     tableTitle() {
-      return this.reportType === '日报' ? '时间' : this.reportType === '月报' ? '日期' : '月份'
+      switch (this.reportType) {
+        case "日报":
+          return "时间"
+        case "周报":
+          return "日期"
+        case "月报":
+          return "日期"
+        case "年报":
+          return "月份"
+      }
     },
     deviationUnit() {
-      return this.reportType === '年报' ? '单位：万kWh' : '单位：kWh'
+      switch (this.reportType) {
+        case "日报":
+          return "单位：kWh"
+        case "周报":
+          return "单位：kWh"
+        case "月报":
+          return "单位：kWh"
+        case "年报":
+          return "单位：万kWh"
+      }
     },
     tableDeviationUnit() {
-      return this.reportType === '年报' ? '万kWh' : 'kWh'
+      switch (this.reportType) {
+        case "日报":
+          return "kWh"
+        case "周报":
+          return "kWh"
+        case "月报":
+          return "kWh"
+        case "年报":
+          return "万kWh"
+      }
     },
     tableUnit() {
-      return this.reportType === '日报' ? 'kWh' : '万kWh'
+      // return this.reportType === '日报' ? 'kWh' : '万kWh'
+      switch (this.reportType) {
+        case "日报":
+          return "kWh"
+        case "周报":
+          return "万kWh"
+        case "月报":
+          return "万kWh"
+        case "年报":
+          return "万kWh"
+      }
     },
   },
   data() {
+    let pickDate = "";
     return {
       echartImg: '',
       timer: null,
@@ -162,6 +223,7 @@ export default {
       paramsId: '',
       reportType: '日报',
       selectDate: '',
+      selectDateDate: [],
       tableData: [],
       alarmTableData: [],
       deviationTableData: [],
@@ -175,13 +237,22 @@ export default {
         name: '',
       },
       computedWidth:'',
+      pickerOptions: {
+        disabledDate(time) {
+          // let startDate = moment(new Date()).subtract(7, 'day').startOf('day').valueOf();
+          let endDate = moment(new Date()).subtract(1, 'day').startOf('day').valueOf();
+          // return time.getTime() > endDate || time.getTime() < startDate;
+          return time.getTime() > endDate;
+        }
+      }
     }
   },
   created() {
-    this.selectDate = moment(new Date()).format('YYYY-MM-DD')
+    this.selectDate = moment(new Date()).subtract(1, 'day').startOf('day').format('YYYY-MM-DD');
+    this.selectDateDate = [moment(new Date()).subtract(7, 'day').startOf('day').format('YYYY-MM-DD'), moment(new Date()).subtract(1, 'day').startOf('day').format('YYYY-MM-DD')];
   },
   mounted() {
-    this.dataType({ id: '116' })
+    // this.dataType({ id: '116' })
     
     let { componentId } = this.customConfig || {}
     componentId && window.componentCenter?.register(componentId, 'comp', this, eventActionDefine)
@@ -218,11 +289,13 @@ export default {
     },
     // 报表数据接口
     async getReportsData() {
+      this.tableData = [];
       let params = {
         id: this.paramsId,
-        date: this.selectDate,
+        date: this.reportType === '周报' ? this.selectDateDate[0] :this.selectDate,
+        endTime: this.reportType === '周报' ? this.selectDateDate[1] : ""
       }
-      console.log('params=============>', params)
+      // console.log('params=============>', params)
       if (params.id == '' || params.id[0] == '') return
       let { data } = await queryReportsData(params)
       let { electricityStatistics, generateElectricity, alarmReport } = data
@@ -313,7 +386,8 @@ export default {
       let params = {
         id: this.paramsId,
         decode: echartImg,
-        time: this.selectDate,
+        time: this.reportType === '周报' ? this.selectDateDate[0] : this.selectDate,
+        endTime: this.reportType === '周报' ? this.selectDateDate[1] : ""
       }
       exportReports(params)
         .then((res) => {
@@ -358,10 +432,13 @@ export default {
     },
     // 报表切换
     reportChange(val) {
-      console.log('报表类型', val)
+      // console.log('报表类型', val)
       switch (val) {
         case '日报':
-          this.selectDate = moment(new Date()).format('YYYY-MM-DD')
+          this.selectDate = moment(new Date()).subtract(1, 'day').startOf('day').format('YYYY-MM-DD');
+          break
+        case '周报':
+          this.selectDateDate = [moment(new Date()).subtract(7, 'day').startOf('day').format('YYYY-MM-DD'), moment(new Date()).subtract(1, 'day').startOf('day').format('YYYY-MM-DD')];
           break
         case '月报':
           this.selectDate = moment(new Date()).format('YYYY-MM')
@@ -404,8 +481,6 @@ export default {
     shiDuanGetSummaries(param) {
       const { columns, data } = param
       const sums = []
-      console.log('look',columns);
-      console.log('look', data);
       columns.forEach((column, index) => {
         if (index === 0) {
           sums[index] = '合计'
@@ -432,10 +507,8 @@ export default {
         let aa = Number(sums[1]) || 0,
             bb = Number(sums[2]) || 0,
             cc = (((aa - bb) / aa) * 100).toFixed(2);
-        console.log(aa,bb,cc);
         sums[3] = cc + '';
       }
-      console.log('sums',sums);
       return sums
     },
     // 逆变器合计
@@ -473,27 +546,27 @@ export default {
       }
     },
     // 日期加减
-    addDate(type) {
-      if (this.reportType === '日报') {
-        if (type === 'reduce') {
-          this.selectDate = moment(this.selectDate).subtract(1, 'day').startOf('day').format('YYYY-MM-DD')
-        } else {
-          this.selectDate = moment(this.selectDate).add(1, 'day').startOf('day').format('YYYY-MM-DD')
-        }
-      } else if (this.reportType === '月报') {
-        if (type === 'reduce') {
-          this.selectDate = moment(this.selectDate).subtract(1, 'month').startOf('month').format('YYYY-MM')
-        } else {
-          this.selectDate = moment(this.selectDate).add(1, 'month').startOf('month').format('YYYY-MM')
-        }
-      } else if (this.reportType === '年报') {
-        if (type === 'reduce') {
-          this.selectDate = moment(this.selectDate).subtract(1, 'year').startOf('year').format('YYYY')
-        } else {
-          this.selectDate = moment(this.selectDate).add(1, 'year').startOf('year').format('YYYY')
-        }
-      }
-    },
+    // addDate(type) {
+    //   if (this.reportType === '日报') {
+    //     if (type === 'reduce') {
+    //       this.selectDate = moment(this.selectDate).subtract(1, 'day').startOf('day').format('YYYY-MM-DD')
+    //     } else {
+    //       this.selectDate = moment(this.selectDate).add(1, 'day').startOf('day').format('YYYY-MM-DD')
+    //     }
+    //   } else if (this.reportType === '月报') {
+    //     if (type === 'reduce') {
+    //       this.selectDate = moment(this.selectDate).subtract(1, 'month').startOf('month').format('YYYY-MM')
+    //     } else {
+    //       this.selectDate = moment(this.selectDate).add(1, 'month').startOf('month').format('YYYY-MM')
+    //     }
+    //   } else if (this.reportType === '年报') {
+    //     if (type === 'reduce') {
+    //       this.selectDate = moment(this.selectDate).subtract(1, 'year').startOf('year').format('YYYY')
+    //     } else {
+    //       this.selectDate = moment(this.selectDate).add(1, 'year').startOf('year').format('YYYY')
+    //     }
+    //   }
+    // },
     // 初始化图表
     initEcharts() {
       const colors = ['#6cb5ec', '#6ce6a4', '#d456e6']
@@ -683,51 +756,50 @@ export default {
         //   end: 70, // 表示默认展示结束位置80%这一段。
         // },
       }
-      console.log('this.rateData', this.rateData)
       option && this.myChart.setOption(option)
       const task = () => {
         this.myChart.resize()
       }
       window.addEventListener('resize', debounce(task, 300))
     },
-    stringToByte(str) {
-      var bytes = new Array()
-      var len, c
-      len = str.length
-      for (var i = 0; i < len; i++) {
-        c = str.charCodeAt(i)
-        if (c >= 0x010000 && c <= 0x10ffff) {
-          bytes.push(((c >> 18) & 0x07) | 0xf0)
-          bytes.push(((c >> 12) & 0x3f) | 0x80)
-          bytes.push(((c >> 6) & 0x3f) | 0x80)
-          bytes.push((c & 0x3f) | 0x80)
-        } else if (c >= 0x000800 && c <= 0x00ffff) {
-          bytes.push(((c >> 12) & 0x0f) | 0xe0)
-          bytes.push(((c >> 6) & 0x3f) | 0x80)
-          bytes.push((c & 0x3f) | 0x80)
-        } else if (c >= 0x000080 && c <= 0x0007ff) {
-          bytes.push(((c >> 6) & 0x1f) | 0xc0)
-          bytes.push((c & 0x3f) | 0x80)
-        } else {
-          bytes.push(c & 0xff)
-        }
-      }
-      return bytes
-    },
-    translateBase64ImgToBlob(base64, contentType) {
-      let arr = base64.split(',') //去掉base64格式图片的头部
-      let bstr = atob(arr[1]) //atob()方法将数据解码
-      let leng = bstr.length
-      let u8arr = new Uint8Array(leng)
-      while (leng--) {
-        u8arr[leng] = bstr.charCodeAt(leng) //返回指定位置的字符的 Unicode 编码
-      }
-      let blob = new Blob([u8arr], { type: contentType })
-      // var blobImg = {}
-      // blobImg.url = URL.createObjectURL(blob) //创建URL
-      // blobImg.name = new Date().getTime() + '.png'
-      return blob
-    },
+    // stringToByte(str) {
+    //   var bytes = new Array()
+    //   var len, c
+    //   len = str.length
+    //   for (var i = 0; i < len; i++) {
+    //     c = str.charCodeAt(i)
+    //     if (c >= 0x010000 && c <= 0x10ffff) {
+    //       bytes.push(((c >> 18) & 0x07) | 0xf0)
+    //       bytes.push(((c >> 12) & 0x3f) | 0x80)
+    //       bytes.push(((c >> 6) & 0x3f) | 0x80)
+    //       bytes.push((c & 0x3f) | 0x80)
+    //     } else if (c >= 0x000800 && c <= 0x00ffff) {
+    //       bytes.push(((c >> 12) & 0x0f) | 0xe0)
+    //       bytes.push(((c >> 6) & 0x3f) | 0x80)
+    //       bytes.push((c & 0x3f) | 0x80)
+    //     } else if (c >= 0x000080 && c <= 0x0007ff) {
+    //       bytes.push(((c >> 6) & 0x1f) | 0xc0)
+    //       bytes.push((c & 0x3f) | 0x80)
+    //     } else {
+    //       bytes.push(c & 0xff)
+    //     }
+    //   }
+    //   return bytes
+    // },
+    // translateBase64ImgToBlob(base64, contentType) {
+    //   let arr = base64.split(',') //去掉base64格式图片的头部
+    //   let bstr = atob(arr[1]) //atob()方法将数据解码
+    //   let leng = bstr.length
+    //   let u8arr = new Uint8Array(leng)
+    //   while (leng--) {
+    //     u8arr[leng] = bstr.charCodeAt(leng) //返回指定位置的字符的 Unicode 编码
+    //   }
+    //   let blob = new Blob([u8arr], { type: contentType })
+    //   // var blobImg = {}
+    //   // blobImg.url = URL.createObjectURL(blob) //创建URL
+    //   // blobImg.name = new Date().getTime() + '.png'
+    //   return blob
+    // },
   },
   destroyed() {
     window.componentCenter?.removeInstance(this.customConfig?.componentId)
@@ -783,6 +855,9 @@ export default {
             padding-left: 15px;
             background: #eff0f0;
           }
+        }
+        .zhouBao {
+          width: 260px;
         }
         .dateImg {
           position: absolute;
