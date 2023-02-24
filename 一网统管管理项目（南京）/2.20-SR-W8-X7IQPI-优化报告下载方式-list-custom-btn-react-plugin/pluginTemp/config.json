@@ -1,0 +1,14 @@
+{
+  "id": "dbf3eee1-0e18-411f-881b-7ee12134ee85",
+  "type": "list-custom-btn",
+  "main": "main.f4a5c39d.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W51-zwiuRz",
+  "requirement-name": "行内按钮增加二开响应方式，生成word模板"
+}
