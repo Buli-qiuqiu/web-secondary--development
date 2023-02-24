@@ -1,0 +1,16 @@
+{
+  "id": "2006aa9a-be92-4c90-b690-9b727cf638b9",
+  "type": "data-form-list",
+  "main": "app.04dc498e.js",
+  "baseVersion": "V8R4C50SPC210",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W6-6sZvis",
+  "requirement-name": "数据列表查询字段从列表选择",
+  "suggestedFolderName": "2.20-SR-W6-6sZvis-数据列表查询字段从列表选择-data-form-list-react-plugin"
+}
