@@ -5,8 +5,8 @@ export const events = [
     name: "tab栏切换",
     payload: [
       {
-        name: "code",
-        key: "value",
+        name: "tabKay",
+        key: "tabCodeId",
         dataType: "string"
       }
     ]

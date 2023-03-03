@@ -1,6 +1,7 @@
 <template>
   <div :id="id" ref="app-secondary" class="tabs-secondary">
-    <van-tabs 
+    <van-tabs
+      v-if="tabList.length > 1"
       v-model="active" 
       line-width="30" 
       line-height="4" 
@@ -17,15 +18,20 @@
         </template>
       </van-tab>
     </van-tabs>
+    <!-- <div v-else class="tabsNull">
+      暂无数据
+    </div> -->
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import { Tab, Tabs } from 'vant';
+// import Vue from 'vue';
+// import { Tab, Tabs } from 'vant';
 import { queryActiveTabs } from "../../api/asset"
-Vue.use(Tab);
-Vue.use(Tabs);
+// const Vue = window.Vue;
+// const { Tab, Tabs } = window.vant;
+// Vue.use(Tab);
+// Vue.use(Tabs);
 
 
 const getQueryString = name => {
@@ -88,7 +94,7 @@ export default {
       console.log('点击标签', val);
       this.triggerEvent(
         "tabsChange",
-        { code: val }
+        { tabCodeId: val }
       );
     },
     // tab请求
@@ -116,6 +122,15 @@ export default {
 <style lang="less" scoped>
 .tabs-secondary {
   width: 100%;
+  .tabsNull {
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 14px;
+    color: #999999;
+    font-family: PingFangSC-Medium, PingFang SC;
+  }
   .tabTitle {
     font-size: 14px;
     font-weight: 500;
