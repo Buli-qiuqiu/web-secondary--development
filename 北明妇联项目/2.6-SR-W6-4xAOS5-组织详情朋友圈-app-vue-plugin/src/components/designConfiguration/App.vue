@@ -20,13 +20,15 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import { Button, Input, Row, Col } from 'element-ui';
+// import Vue from 'vue';
+// import { Button, Input, Row, Col } from 'element-ui';
+// const Vue = window.Vue;
+// const { Button, Input, Row, Col } = window.ELEMENT;
 
-Vue.use(Button);
-Vue.use(Input);
-Vue.use(Row);
-Vue.use(Col);
+// Vue.use(Button);
+// Vue.use(Input);
+// Vue.use(Row);
+// Vue.use(Col);
 
 export default {
   name: "DesignConfiguration",

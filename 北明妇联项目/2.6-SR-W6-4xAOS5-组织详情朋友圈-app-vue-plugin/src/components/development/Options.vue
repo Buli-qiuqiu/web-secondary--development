@@ -3,26 +3,28 @@
     <div class="options" v-for="item in optionsRender" :key="item">
       <div class="options-item">
         <div :style='{ display: "inline-block", width: "200px" }'>{{ item }}</div>
-        <el-input
-          v-model="customOptions[item]"
-        ></el-input>
+        <el-input v-model="customOptions[item]"></el-input>
       </div>
     </div>
     <el-button class="optionsSubmit" @click=changeOptions(customOptions)>执行</el-button>
   </div>
-
 </template>
 
 <script>
-import {
-  Button,
-  Input
-} from "element-ui";
-import Vue from "vue";
+// import {
+//   Button,
+//   Input
+// } from "element-ui";
+// import Vue from "vue";
+// const Vue = window.Vue;
+// const {
+//   Button,
+//   Input
+// } = window.ELEMENT;
 import configJson from "../../../pluginTemp/config.json";
 
-Vue.use(Button);
-Vue.use(Input);
+// Vue.use(Button);
+// Vue.use(Input);
 export default {
   name: "Options",
   components: {},

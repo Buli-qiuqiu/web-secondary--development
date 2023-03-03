@@ -3,7 +3,7 @@
     <div class="listBox">
       <van-list v-model="loading" :finished="finished" offset="10" finished-text="没有更多了" :immediate-check="false" @load="queryActive">
         <div class="activityBox" v-for="item,index in activityList" :key="item.data_id">
-          <img class="headImg" :src="item.headImage" alt="">
+          <img class="headImg" :src="prefixIp + item.headImage" alt="">
           <div class="cardBox">
             <div class="cardTitle-right">
               <span class="card-name">{{ item.microhome_name }}</span>
@@ -15,10 +15,10 @@
               <span class="textMore">收起</span> -->
               <PublishCom :concent="item.publish_content" :keyRef="item.data_id"/>
               <div v-if="item.publish_image.length > 1" class="imgContent">
-                <img class="conentImg" v-for="imgs,inx in item.publish_image" :key="inx" :src="imgs.url" alt="">
+                <img class="conentImg" v-for="imgs,inx in item.publish_image" :key="inx" :src="prefixIp + imgs.url" alt="">
               </div>
               <div v-else class="imgContent">
-                <img class="conentImgOnly" v-for="imgs,inx in item.publish_image" :key="inx" :src="imgs.url" alt="">
+                <img class="conentImgOnly" v-for="imgs,inx in item.publish_image" :key="inx" :src="prefixIp + imgs.url" alt="">
               </div>
             </div>
             <div class="belikeBox">
@@ -53,7 +53,7 @@
     <van-popup v-model="isPingLun" position="bottom" safe-area-inset-bottom @close="isPingLunClose">
       <div ref="textareaPopup" class="fieldBox" v-if="isPingLun" :key="this.isActiveId">
         <van-field v-model="pingLunMessage" maxlength="200" :autosize='{maxHeight: 120, minHeight: 100 }' :border="true" type="textarea" placeholder="" />
-        <van-button class="fabuBtn" round size="mini" type="default" @click="addPingLun">发布</van-button>
+          <van-button class="fabuBtn" round size="mini" :style="{'background' : !pingLunMessage ? '#BBBBBB' : '#1989fa' }" type="default" @click="addPingLun">发布</van-button>
       </div>
     </van-popup>
     <van-popup v-model="isDelPingLun" position="bottom">
@@ -65,11 +65,13 @@
 </template>
 
 <script>
-import Vue from 'vue';
+// import Vue from 'vue';
+// import { List, Popup, Button, Field, Dialog } from 'vant';
+// const Vue = window.Vue;
+// const { List, Popup, Button, Field, Dialog } = window.vant;
+
 import moment from 'moment';
-import { List, Popup, Button, Field, Dialog } from 'vant';
-// import { Input } from 'element-ui';
-import PublishCom from "./publishCon.vue"
+import PublishCom from "./publishCon"
 import _ from 'lodash'
 // import Vconsole from 'vconsole';
 
@@ -89,11 +91,11 @@ import {
   queryPingLunData,
  } from "../../api/asset";
 
-Vue.use(List);
-Vue.use(Popup);
-Vue.use(Button);
-Vue.use(Field);
-Vue.use(Dialog);
+// Vue.use(List);
+// Vue.use(Popup);
+// Vue.use(Button);
+// Vue.use(Field);
+// Vue.use(Dialog);
 
 const getQueryString = name => {
   const reg = new RegExp(name + "=([^&]*)(&|$)", "i");
@@ -121,9 +123,12 @@ export default {
   },
   computed: {},
   data() {
+    const { Dialog } = window.vant;
     return {
       //必需，不可删除
       id: "",
+      dialogel: Dialog,
+      prefixIp: "",
       adminInfo: {},
       adminInfoId: "",
       moment,
@@ -148,6 +153,7 @@ export default {
     this.mainInit(this);
     this.queryUserInfo();
     this.paramsList = this.customConfig?.paramsList ? this.customConfig.paramsList : [];
+    this.prefixIp = window?.configuration?.system_resource_access_prefix || "";
   },
   methods: {
     /**
@@ -172,7 +178,7 @@ export default {
     toLogin() {
       let appId = '9b7b76e8-3099-aa84-305c-7a7a456f287b';
       let { pathname, search } = window.location;
-      let  pageUrl = encodeURIComponent(pathname + search) + `${search == "" ? '?' : '&'}appId=${appId}`;
+      let pageUrl = encodeURIComponent(pathname + search) + `${search == "" ? '?' : '&'}appId=${appId}`;
       wx.miniProgram.redirectTo({ url: `../login/login?redirect_url=${pageUrl}` })
     },
     // 获取用户信息
@@ -228,7 +234,7 @@ export default {
     // 点赞如表
     likeAddHandel: _.throttle(function(val,index) {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -294,7 +300,7 @@ export default {
     // 评论
     pinglunHandel(id,bodyName, bodyId) {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -312,7 +318,7 @@ export default {
     pinglunHandelFun(val,id) {
       // console.log(val);
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -376,7 +382,7 @@ export default {
     // 删除
     delPingLun(){
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -417,10 +423,9 @@ export default {
   .listBox {
     padding: 10px;
     width: 100%;
-    // height: 100%;
     height: 100vh;
-    // flex: 1;
     overflow-y: scroll;
+    box-sizing: border-box;
     &::-webkit-scrollbar {
       width: 0;
     }
@@ -432,14 +437,17 @@ export default {
       display: flex;
       background: #FFFFFF;
       border-radius: 8px;
+      box-sizing: border-box;
       .headImg {
         width: 38px;
         height: 38px;
+        min-width: 38px;
+        min-height: 38px;
         border-radius: 50%;
         margin-right: 8px;
       }
       .cardBox {
-        width: calc(100% - 68px);
+        width: calc(100% - 48px);
         .cardTitle-right {
           display: flex;
           height: 40px;
@@ -447,9 +455,9 @@ export default {
           flex-direction: column;
           .card-name {
             height: 20px;
-            font-size: 16px;
+            font-size: 15px;
             font-family: PingFangSC-Medium, PingFang SC;
-            font-weight: 600;
+            font-weight: bold;
             color: #333333;
             line-height: 20px;
           }
@@ -465,9 +473,9 @@ export default {
         .cardContent {
           margin-top: 10px;
           .textContent {
-            font-size: 16px;
+            font-size: 14px;
             font-family: PingFangSC-Regular, PingFang SC;
-            font-weight: 500;
+            font-weight: 400;
             color: #333333;
             line-height: 20px;
             overflow: hidden;
@@ -485,13 +493,15 @@ export default {
           }
           .imgContent {
             margin-top: 8px;
-            width: 100%;
+            width: calc(100% - 40px);
             display: flex;
             flex-wrap: wrap;
+            box-sizing: border-box;
             .conentImg {
               margin-top: 8px;
-              width: 80px;
-              height: 80px;
+              // width: 80px;
+              // height: 80px;
+              width: 31.20%;
               border-radius: 4px;
               &:nth-child(2) {
                 margin-left: 8px;
@@ -508,9 +518,9 @@ export default {
             }
             .conentImgOnly {
               margin-top: 8px;
-              width: 100%;
-              height: 100%;
+              width: 60%;
               border-radius: 4px;
+              box-sizing: border-box;
             }
           }
         }
@@ -562,7 +572,7 @@ export default {
           .commentBox {
             padding: 0 8px 4px 8px;
             .conmentItem {
-              margin-top: 5px;
+              margin-top: 0;
               font-size: 14px;
               font-family: PingFangSC-Regular, PingFang SC;
               font-weight: 400;
@@ -592,7 +602,6 @@ export default {
         margin-bottom: 16px;
         width: 72px;
         height: 26px;
-        background: #BBBBBB;
         color: #FFFFFF;
       }
     }
