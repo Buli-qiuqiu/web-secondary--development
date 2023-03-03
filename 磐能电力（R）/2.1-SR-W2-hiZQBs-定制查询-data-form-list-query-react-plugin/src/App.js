@@ -61,26 +61,40 @@ import { getAssetData } from './api/asset'
 import './index.less'
 const { RangePicker } = DatePicker;
 moment.locale('zh-cn')
+let option = [{ value: 1, label: 2 }]
 const App = ({
   _queryList = [],
   onHandleSearch,
   onHandleClean,
   ...otherProps
 }) => {
-  const [inputContent, setInputContent] = useState('');
-  const [inputNum, setInputNum] = useState(undefined);
-  const [conditionalValue, setConditionalValue] = useState({});
   const [optionsV, setOptionsV] = useState([]);
-  const [iften, setIFten] = useState(false)
   const [selectData, setSelectData] = useState({})
-  const [compTT, setcompTT] = useState('');
   const [form] = Form.useForm();
+  const [optionSelect, setOptionSelect] = useState({})
   console.log(123123, _queryList);
   console.log(123123, otherProps);
 
   useEffect(() => {
-    conditionalComp()
-    queryAllData()
+    let temp = {}
+    _queryList.map(item => {
+      if (item.showType === 'select') {
+        if (getColData(item.componentId).option_key_column) {
+          querySelect(item.componentId).then(res => {
+            console.log(res);
+            temp[getColName(item.componentId)] = res
+          }).catch(err => {
+            console.log(res);
+          })
+        } else {
+          temp[getColName(item.componentId)] = JSON.parse(getColData(item.componentId).option_value || "[]")
+        }
+      }
+    })
+    setTimeout(() => {
+      setOptionSelect(temp)
+    }, 200)
+
 
     let two_area = document.querySelector('.two_areaQuery')
     if (two_area) {
@@ -91,14 +105,8 @@ const App = ({
     console.log(form.getFieldsValue(), '-----form');
   }, [form.getFieldsValue().电站数据]);
   useEffect(() => {
-    conditionalComp()
+    // conditionalComp()
   }, [optionsV]);
-  //
-  // const getCol = id => {
-  //   let { allComponentList } = otherProps;
-  //   let nowComponent = allComponentList.filter(item => item.id === id);
-  //   return nowComponent[0].label;
-  // };
   //找出指定的组件标题 label
   const getColName = id => {
     let { allComponentList } = otherProps;
@@ -111,12 +119,6 @@ const App = ({
     let nowComponent = allComponentList.filter(item => item.id === id);
     return nowComponent[0]
   };
-  // //找出下拉框组件需要的资产id和绑定的字段
-  // const getColAsseit = id => {
-  //   let { allComponentList } = otherProps;
-  //   let nowComponent = allComponentList.filter(item => item.id === id);
-  //   return nowComponent[0].componentPhysicalFieldMappingList;
-  // };
   //查询下拉框数据
   const querySelect = async id => {
     let res = await getAssetData(getColData(id)?.option_asset_id || getColData(id)?.componentPhysicalFieldMappingList?.[0].assetId, [getColData(id)?.option_key_column, getColData(id)?.option_value_column])
@@ -131,13 +133,6 @@ const App = ({
     })
     return a
   }
-  //更新值
-  // const changeFn = (e, item) => {
-  //   let temp = JSON.parse(JSON.stringify(conditionalValue));
-  //   console.log(temp, '===数字更新');
-  //   temp[getColName(item.componentId)] = e?.target?.value || e;
-  //   setConditionalValue(temp)
-  // }
   //过滤设备名称
   const changePower = (value, ColObj, equipment) => {
 
@@ -159,29 +154,17 @@ const App = ({
       console.log(err);
     })
   }
-  //数据
-  const queryAllData = async () => {
-    let selectData = {}
-    await Promise.all(_queryList.map(async (item, i) => {
-      if (item.showType === 'select') {
-        let option = await querySelect(item.componentId)
-        selectData[item.componentId] = option
-      }
-    }))
-    setSelectData(selectData)
-  }
   //创建不同类型的筛选框
-  const conditionalComp = async () => {
+  const conditionalComp2 = () => {
     let statuLuj = []
     let setEquipment
     _queryList.map(async (item, i) => {
       if ((getColName(item.componentId) == '电站名称' && item.showType === 'select') || (getColName(item.componentId) == '设备名称' && item.showType === 'select')) statuLuj.push(getColName(item.componentId))
       if ((getColName(item.componentId) == '设备名称' && item.showType === 'select')) setEquipment = getColData(item.componentId)
     })
-    let result
-    setIFten(statuLuj.length == 2)
+    // setIFten(statuLuj.length == 2)
     if (statuLuj.length == 2) {
-      result = await Promise.all(_queryList.map(async (item, i) => {
+      return _queryList.map(item => {
         if (item.showType === 'input') {
           return <Col className="gutter-row" span={8} >
             <Form.Item name={getColName(item.componentId)} label={getColName(item.componentId)} >
@@ -196,9 +179,7 @@ const App = ({
           </Col>
         }
         if (item.showType === 'select') {
-
           if (getColName(item.componentId) == '电站名称') {
-            let option = await querySelect(item.componentId)
             return <Col className="gutter-row" span={8} >
               <Form.Item name={getColName(item.componentId)} label={getColName(item.componentId)} >
                 <Select
@@ -210,7 +191,7 @@ const App = ({
                   filterOption={(input, option) =>
                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                   }
-                  options={option}
+                  options={optionSelect[getColName(item.componentId)]}
                   style={{ width: '100%' }}
                 // value={conditionalValue[getColName(item.componentId)]}
                 />
@@ -239,7 +220,6 @@ const App = ({
             </Col>
           }
           else {
-            let option = await querySelect(item.componentId)
 
             return <Col className="gutter-row" span={8} >
               <Form.Item name={getColName(item.componentId)} label={getColName(item.componentId)} >
@@ -251,7 +231,8 @@ const App = ({
                   filterOption={(input, option) =>
                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                   }
-                  options={getColData(item.componentId).option_key_column ? option : JSON.parse(getColData(item.componentId).option_value || "[]")}
+                  // options={getColData(item.componentId).option_key_column ? option : JSON.parse(getColData(item.componentId).option_value || "[]")}
+                  options={optionSelect[getColName(item.componentId)]}
                   style={{ width: '100%' }}
                 />
               </Form.Item>
@@ -263,7 +244,6 @@ const App = ({
           return <Col className="gutter-row" span={8}>
             <ConfigProvider locale={locale}>
               <Form.Item name={getColName(item.componentId)} label={getColName(item.componentId)} >
-
                 <RangePicker
                   className='two_RangePicker'
                   allowClear
@@ -275,16 +255,13 @@ const App = ({
                     <path d="M7.875 16.375H12.875V19.5H7.875V16.375ZM7.875 20.125H12.875V23.25H7.875V20.125ZM13.5 16.375H18.5V19.5H13.5V16.375ZM13.5 20.125H18.5V23.25H13.5V20.125ZM19.125 16.375H24.125V19.5H19.125V16.375ZM19.125 20.125H24.125V23.25H19.125V20.125Z" fill="white" />
                   </svg>}
                 />
-
-
               </Form.Item>
             </ConfigProvider>
           </Col>
         }
-
-      }))
+      })
     } else {
-      result = await Promise.all(_queryList.map(async (item, i) => {
+      return _queryList.map(item => {
         if (item.showType === 'input') {
           return <Col className="gutter-row" span={8} >
             <Form.Item name={getColName(item.componentId)} label={getColName(item.componentId)} >
@@ -298,8 +275,6 @@ const App = ({
           </Col>
         }
         if (item.showType === 'select') {
-          let option = await querySelect(item.componentId)
-          console.log(option, '====we');
           return <Col className="gutter-row" span={8} >
             <Form.Item name={getColName(item.componentId)} label={getColName(item.componentId)} >
               <Select
@@ -311,7 +286,8 @@ const App = ({
                 filterOption={(input, option) =>
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
-                options={getColData(item.componentId).option_key_column ? option : JSON.parse(getColData(item.componentId).option_value || "[]")}
+                // options={getColData(item.componentId).option_key_column ? option : JSON.parse(getColData(item.componentId).option_value || "[]")}
+                options={optionSelect[getColName(item.componentId)]}
                 style={{ width: '100%' }}
               />
             </Form.Item>
@@ -335,12 +311,8 @@ const App = ({
             </ConfigProvider>
           </Col>
         }
-
-      }))
+      })
     }
-    setcompTT(result)
-    console.log(result, '---------a');
-    // return result
   }
   //提交方法
   const submit = () => {
@@ -420,16 +392,16 @@ const App = ({
         <Form className='two_areaQuery_Form'  {...layout} form={form} name="control-hooks" >
           <div className='areaQuery' >
             <Row >
-              {compTT}
+              {conditionalComp2()}
             </Row>
           </div>
         </Form>
       </ConfigProvider>
       <div className='submitButton'>
-        <Button type="primary" style={{ marginRight: '20px' }} icon={<SearchOutlined />} onClick={submit}>
+        <Button type="primary" className='plubicBtn ' style={{ marginRight: '20px' }} icon={<SearchOutlined />} onClick={submit}>
           查询
         </Button>
-        <Button icon={<RedoOutlined />} onClick={reset}>
+        <Button className='restBn_two plubicBtn' icon={<RedoOutlined />} onClick={reset}>
           重置
         </Button>
       </div>

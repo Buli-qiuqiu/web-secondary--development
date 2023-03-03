@@ -1,17 +1,19 @@
 <template>
   <div class="designConfiguration">
     <el-form ref="form" :model="form" label-width="80px">
+      <el-form-item label="图标大小">
+        <el-input v-model="form.iconSize"></el-input>
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import { Form, FormItem, Input } from "element-ui";
-import Vue from "vue";
-
-Vue.use(FormItem);
-Vue.use(Form);
-Vue.use(Input);
+// import { Form, FormItem, Input } from "element-ui";
+// import Vue from "vue";
+// Vue.use(FormItem);
+// Vue.use(Form);
+// Vue.use(Input);
 export default {
   name: "DesignConfiguration",
   components: {},
@@ -20,7 +22,6 @@ export default {
       form: {
         id: "",
         iconSize: "",
-        fontSize: "",
       },
     };
   },
@@ -41,11 +42,8 @@ export default {
   mounted() {
     this.form = this.customConfig?.form || {
       iconSize: "",
-      fontSize: "",
     };
   },
   methods: {},
 };
 </script>
-
-<style scoped></style>

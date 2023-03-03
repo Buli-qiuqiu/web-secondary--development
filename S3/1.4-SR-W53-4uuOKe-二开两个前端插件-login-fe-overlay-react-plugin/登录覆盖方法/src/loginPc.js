@@ -5,7 +5,7 @@ import PersonalizedForm from './PersonalizedForm';
 import { message, notification, Modal } from "antd";
 import errorCode from './ERROR_zh_CN.json'
 // 登录接口
-import { loginAccount, getUser, loginByPhone } from "./api/asset";
+import { loginAccount, getUser, loginByPhone, loginAccount4ApplicationWeb } from "./api/asset";
 
 const openNotification = (title, message) => {
     notification.open({
@@ -22,6 +22,8 @@ const App = ({ type, ...props }) => {
     const [funstate, setFunstate] = useState({});
     // const [messageApi, contextHolder] = message.useMessage();
     const [token, setToken] = useState('');
+    const pathName = window.location.pathname.includes('/application/login')
+    console.log(pathName, '----文件');
     const submit = (params, { history }) => {
         // const submit = (params) => {
         // 执行注册/登录时会触发此方法，所有参数在 params 中
@@ -33,81 +35,109 @@ const App = ({ type, ...props }) => {
                     setIsModalOpen(false)
                 }
             })
-
-            if (params.loginType == 'code') {
+            if (pathName) {
                 let loginForm = {
-                    captcha: params.captcha,
-                    imageCode: params.imageCode,
-                    loginName: params.loginName,
-                    phone: params.loginName,
-                    smsCode: params.captcha,
+                    account: params.loginName,
+                    password: props.Encrypt && props.Encrypt(params.password),
                 };
-                loginByPhone(loginForm)
-                    .then((res) => {
-                        const login = {
-                            success: true,
-                            token: res.data.tokenInfo,
-                            // token: res.data,
-                        };
-                        setToken(login)
-                        mobileNew = params.loginName;
-                        if (res?.data?.endNodeResult?.needMessage && mobileNew) {
+                loginAccount4ApplicationWeb(loginForm).then(res => {
+                    const login = {
+                        success: true,
+                        token: res.data.tokenInfo,
+                        // token: res.data,
+                    };
+                    getUser().then(resp => {
+                        const { data = {} } = resp;
+                        const { mobile } = data;
+                        mobileNew = mobile;
+                        if (res?.data?.endNodeResult?.needMessage && mobile) {
                             setIsModalOpen(true)
                         } else {
                             resolve(login);
                         }
-
-                        //判断是否有需要跳转留资接口
-
                     })
-                    .catch((err) => {
-                        message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
-                        // if (err.data?.message == 'Wrong user name or password!') {
-                        //     message.error('用户名或密码错误');
-                        // } else if (err.data?.message == 'Mobile phone verification code error') {
-                        //     message.error('短信验证码错误');
-                        // } else {
-                        //     message.error('图片验证码校验失败');
-                        // }
-                        reject(err)
-                    });
+                    setToken(login)
+                }).catch((err) => {
+                    message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
+                    reject(err)
+                });
             } else {
-                let loginForm = {
-                    account: params.loginName,
-                    username: params.loginName,
-                    imageCode: params.imageCode,
-                    password: props.Encrypt && props.Encrypt(params.password),
-                };
-                loginAccount(loginForm)
-                    .then((res) => {
-                        const login = {
-                            success: true,
-                            token: res.data.tokenInfo,
-                        };
-                        getUser().then(resp => {
-                            const { data = {} } = resp;
-                            const { mobile } = data;
-                            mobileNew = mobile;
-                            if (res?.data?.endNodeResult?.needMessage && mobile) {
+                if (params.loginType == 'code') {
+                    let loginForm = {
+                        captcha: params.captcha,
+                        imageCode: params.imageCode,
+                        loginName: params.loginName,
+                        phone: params.loginName,
+                        smsCode: params.captcha,
+                    };
+                    loginByPhone(loginForm)
+                        .then((res) => {
+                            const login = {
+                                success: true,
+                                token: res.data.tokenInfo,
+                                // token: res.data,
+                            };
+                            setToken(login)
+                            mobileNew = params.loginName;
+                            if (res?.data?.endNodeResult?.needMessage && mobileNew) {
                                 setIsModalOpen(true)
                             } else {
                                 resolve(login);
                             }
-                        })
-                        setToken(login)
-                        //判断是否有需要跳转留资接口
 
-                    })
-                    .catch((err) => {
-                        message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
-                        // if (err.data?.message == 'Wrong user name or password!') {
-                        //     message.error('用户名或密码错误');
-                        // } else {
-                        //     message.error('图片验证码校验失败');
-                        // }
-                        reject(err)
-                    });
+                            //判断是否有需要跳转留资接口
+
+                        })
+                        .catch((err) => {
+                            message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
+                            // if (err.data?.message == 'Wrong user name or password!') {
+                            //     message.error('用户名或密码错误');
+                            // } else if (err.data?.message == 'Mobile phone verification code error') {
+                            //     message.error('短信验证码错误');
+                            // } else {
+                            //     message.error('图片验证码校验失败');
+                            // }
+                            reject(err)
+                        });
+                } else {
+                    let loginForm = {
+                        account: params.loginName,
+                        username: params.loginName,
+                        imageCode: params.imageCode,
+                        password: props.Encrypt && props.Encrypt(params.password),
+                    };
+                    loginAccount(loginForm)
+                        .then((res) => {
+                            const login = {
+                                success: true,
+                                token: res.data.tokenInfo,
+                            };
+                            getUser().then(resp => {
+                                const { data = {} } = resp;
+                                const { mobile } = data;
+                                mobileNew = mobile;
+                                if (res?.data?.endNodeResult?.needMessage && mobile) {
+                                    setIsModalOpen(true)
+                                } else {
+                                    resolve(login);
+                                }
+                            })
+                            setToken(login)
+                            //判断是否有需要跳转留资接口
+
+                        })
+                        .catch((err) => {
+                            message.error(errorCode[`ERROR.${err.data.code}`] || '登录失败');
+                            // if (err.data?.message == 'Wrong user name or password!') {
+                            //     message.error('用户名或密码错误');
+                            // } else {
+                            //     message.error('图片验证码校验失败');
+                            // }
+                            reject(err)
+                        });
+                }
             }
+
         });
     };
     useEffect(() => {

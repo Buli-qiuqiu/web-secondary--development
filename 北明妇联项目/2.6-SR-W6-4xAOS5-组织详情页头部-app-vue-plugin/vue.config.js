@@ -8,12 +8,20 @@ module.exports = {
     proxy: {
       "/api": {
         // target: "http://10.15.111.6:8088/",
-        target: "http://10.15.110.25:18880/",
+        // target: "http://10.15.110.25:18880/",
+        target: "http://10.15.111.15:12201/",
         changeOrigin: true,
         pathRewrite: {
           "/api": ""
         }
       }
+    }
+  },
+  productionSourceMap: false,
+  configureWebpack: {
+    externals: {
+      vue: "Vue",
+      "element-ui": "ELEMENT",
     }
   },
   chainWebpack: (config) => {
@@ -54,18 +62,6 @@ module.exports = {
       .tap(options => Object.assign(options, { limit: 10 * 100 * 1024 * 1024 }));
 
   },
-  // css: {
-  //   loaderOptions: {
-  //     postcss: {
-  //       plugins: [
-  //         require('postcss-pxtorem')({
-  //           rootValue: 37.5,
-  //           propList: ['*']
-  //         })
-  //       ]
-  //     }
-  //   }
-  // }
 };
 
 function resolve(dir) {

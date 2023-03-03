@@ -15,10 +15,18 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "utils/*": ["src/utils/*"],
-      "service/*": ["src/service/*"],
-      "components/*": ["src/components/*"],
-      "@/*": ["src/*"]
+      "utils/*": [
+        "src/utils/*"
+      ],
+      "service/*": [
+        "src/service/*"
+      ],
+      "components/*": [
+        "src/components/*"
+      ],
+      "@/*": [
+        "src/*"
+      ]
     },
     "outDir": "./dist",
     "sourceMap": true,
@@ -37,5 +45,8 @@
     "fixtures",
     "examples"
   ],
-  "include": ["src", "types"]
+  "include": [
+    "src",
+    "types"
+  ]
 }

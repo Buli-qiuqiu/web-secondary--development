@@ -1,7 +1,7 @@
 <template>
   <div :id="id" ref="canvas-secondary" class="canvas-secondary">
     <div class="block" @click="goMap">
-      <img src="../../../pluginTemp/images/position.png" alt="" width="36px" />
+      <img src="../../../pluginTemp/images/position.png" alt="" :width="this.configuration?.form?.iconSize || '36px'" />
     </div>
   </div>
 </template>
@@ -17,6 +17,7 @@ export default {
     record: Object,
     value: String,
     mainInit: Function,
+    allComponentList: Array,
   },
   computed: {},
   data() {
@@ -27,6 +28,26 @@ export default {
     };
   },
   async mounted() {
+    let lat = "";
+    let long = "";
+    this.allComponentList.forEach((item, index) => {
+      if (item.title == "latitude") {
+        for (const k in this.record) {
+          if (k == item.id) {
+            lat = this.record[k];
+          }
+        }
+      }
+      if (item.title == "longitude") {
+        for (const k in this.record) {
+          if (k == item.id) {
+            long = this.record[k];
+          }
+        }
+      }
+    });
+    this.valuePosition = lat + "," + long;
+    console.log(this.valuePosition,49);
     await this.getJSSDK();
     //此方法封装了事件注册，不可删除
     this.mainInit(this);
@@ -57,13 +78,13 @@ export default {
       window.wx.error((res) => {});
     },
     goMap() {
-          window.wx.openLocation({
-            latitude: Number(this.valuePosition?.split(",")[0]),
-            longitude: Number(this.valuePosition?.split(",")[1]),
-            success(res) {},
-            fail(error) {},
-          });
-        },
+      window.wx.openLocation({
+        latitude: Number(this.valuePosition?.split(",")[0]),
+        longitude: Number(this.valuePosition?.split(",")[1]),
+        success(res) {},
+        fail(error) {},
+      });
+    },
     /**
      * 封装的触发事件方法 必需，不可删除
      * @param {String} eventName 事件名
@@ -87,7 +108,7 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped>
+<style lang="less" :scoped="true">
 .imgTitle {
   font-size: 14px;
 }

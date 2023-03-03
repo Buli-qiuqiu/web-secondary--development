@@ -39,3 +39,6 @@ export const queryAllMsg = () => request.get(`ext/system/userMsg/queryAllMsg`);
 // 提交留资
 export const userMsgInsert = params =>
   request.post(`ext/system/userMsg/insert`, params);
+
+export const createAccountWeb = (params) =>
+  request.post(`datapp/authorized/create?datappId=${params.appid}&authPicCode=${params.authPicCode}`, params);

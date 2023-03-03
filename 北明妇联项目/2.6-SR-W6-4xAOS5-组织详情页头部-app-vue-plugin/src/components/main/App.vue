@@ -1,11 +1,11 @@
 <template>
-  <div :id="id" ref="app-secondary" class="app-secondary">
+  <div :id="id" ref="app-secondary" class="app-secondary organization_two ">
     <div class="organization">
       <div class="organization_head">
         <div class="organization_head_left">
           <div class="organization_portrait">
-            <img :src="organizeData.organize_cover_art || require('../../api/image/test1.jpg')" width="100%" height="100%"
-              alt="" srcset="">
+            <img ref="testImg" :src="organizeData.organize_cover_art || require('../../api/image/test1.jpg')" width="100%"
+              height="100%" alt="" srcset="">
           </div>
         </div>
         <div class="organization_head_right">
@@ -36,15 +36,32 @@
         </div>
       </div>
     </div>
+    <div class="testBill">
+      <div class="fu_test">
+        <img class="testSrc" ref="testSrc" alt="">
+      </div>
+      <div class="title_type"> <span class="iconfont">&#xe737;</span>{{ organizeData.organization_name }}</div>
+      <div class="title_phone"><span class="iconfont">&#xf0203;</span> {{ organizeData.responsible_phone }}</div>
+    </div>
+
+    <el-dialog class="beiming_developer" :append-to-body="true" :visible.sync="dialogVisible" width="300px">
+      <img ref="imgSrc" class="beiming_developer_bill" alt="">
+
+    </el-dialog>
   </div>
 </template>
 
 <script>
-// import 'amfe-flexible';
 import html2canvas from 'html2canvas'
 import qs from 'querystringify';
-import { jsSdkConfig, offieDetilN, offieDetil, fllowAdd, userQuery, fllowAddTable, fllowDel, fllowDelTable, browseAdd } from "../../api/asset";
+// import Vue from 'vue'
+// import {
+//   Dialog, Loading
+// } from "element-ui";
+import { jsSdkConfig, QrCode, offieDetilN, offieDetil, fllowAdd, userQuery, fllowAddTable, fllowDel, fllowDelTable, browseAdd } from "../../api/asset";
 import testPNG from '../../api/image/test1.jpg';
+// Vue.use(Dialog);
+// Vue.use(Loading.directive);
 const keys = [{ key: '粉丝', keycode: 'organize_followers_num' },
 { key: '活动', keycode: 'organize_activity_num' },
 { key: '收藏', keycode: 'organize_collection_num' },
@@ -82,6 +99,7 @@ export default {
       { key: '收藏', value: '345' },
       { key: '动态', value: '682' },],
       isFollow: false,//是否关注
+      dialogVisible: false,
       wxParams: {},//微信参数
       organizeData: {},//当前参观组织的数据
       user_id: '1234567890',
@@ -104,11 +122,25 @@ export default {
     window.onerror = function (err) {
       console.log(err, '=-----错误程序');
     }
-
+    this.createQR()
     // let body = document.querySelector('body')
     // body.style.fontSize = '12px'
   },
   methods: {
+    //二维码
+    createQR() {
+      let pagename = window.location.pathname.split('/')[window.location.pathname.split('/').length - 1]
+      let organizationid = qs.parse(window.location.search)?.officeid
+      QrCode({ path: `pages/firstpage/firstpage?pagename=${pagename}2&organizationid=${organizationid}`, width: 280 }).then(res => {
+        let blob = res.data
+        let reader = new FileReader();
+        reader.readAsDataURL(blob);  // 转换为base64
+        reader.onload = (e) => {
+          this.$refs.testSrc.src = reader.result
+        }
+      })
+    },
+
     //关注事件
     handleFollow() {
       if (this.user_id) {
@@ -125,19 +157,30 @@ export default {
     },
     toLogin() {
       let appId = '9b7b76e8-3099-aa84-305c-7a7a456f287b';
-      // wx.miniProgram.redirectTo({ url: `../login/login&appId=${appId}` })
       let { pathname, search } = window.location;
       let pageUrl = encodeURIComponent(pathname + search) + `${search == "" ? '?' : '&'}appId=${appId}`;
       wx.miniProgram.redirectTo({ url: `../login/login?redirect_url=${pageUrl}` })
     },
     //分享事件
     handleShare() {
+      let loadingInstance1 = window?.ELEMENT?.Loading.service({ fullscreen: true, background: 'rgba(0,0,0,.2)', text: '生成海报中' });
       if (this.user_id) {
-
+        if (this.$refs?.imgSrc?.src) {
+          loadingInstance1.close();
+          this.dialogVisible = true
+        } else {
+          html2canvas(document.querySelector('.testBill'), { allowTaint: true, useCORS: true, scale: 1 }).then(canvas => {
+            this.dialogVisible = true
+            var imgUrl = canvas.toDataURL("image/png");//这里通过canvas的toDataURL方法把它转换成base64编码。
+            this.$nextTick(() => {
+              this.$refs.imgSrc.src = imgUrl
+              loadingInstance1.close();
+            })
+          })
+        }
       } else {
         this.toLogin()
       }
-      console.log(this.wxParams.appId, '-----d');
     },
     //判断是否过万
     handleISOver(num) {
@@ -162,7 +205,13 @@ export default {
           // console.log(res, '======ewn');
           this.organizeData = res.data[0]
           this.isFollow = Boolean(Number(this.organizeData.attent_status))
-          this.organizeData.organize_cover_art = JSON.parse(this.organizeData.organize_cover_art || '[]')[0]?.url
+          let imgUrl = JSON.parse(this.organizeData.organize_cover_art || '[]')[0]?.url
+          if (imgUrl.includes('http')) {
+            this.organizeData.organize_cover_art = imgUrl
+          } else {
+            this.organizeData.organize_cover_art = window?.configuration?.system_resource_access_prefix ? window?.configuration?.system_resource_access_prefix + imgUrl : imgUrl
+          }
+          // this.organizeData.organize_cover_art = JSON.parse(this.organizeData.organize_cover_art || '[]')[0]?.url
           this.dynamic = []
           valueArr.forEach(x => {
             this.organizeData[x] = this.handleISOver(this.organizeData[x])
@@ -180,7 +229,13 @@ export default {
           // console.log(res, '======ewn');
           this.organizeData = res.data[0]
           this.isFollow = Boolean(Number(this.organizeData.attent_status))
-          this.organizeData.organize_cover_art = JSON.parse(this.organizeData.organize_cover_art || '[]')[0]?.url
+          let imgUrl = JSON.parse(this.organizeData.organize_cover_art || '[]')[0]?.url
+          if (imgUrl.includes('http')) {
+            this.organizeData.organize_cover_art = imgUrl
+          } else {
+            this.organizeData.organize_cover_art = window?.configuration?.system_resource_access_prefix ? window?.configuration?.system_resource_access_prefix + imgUrl : imgUrl
+          }
+          // this.organizeData.organize_cover_art = JSON.parse(this.organizeData.organize_cover_art || '[]')[0]?.url
           this.dynamic = []
           valueArr.forEach(x => {
             this.organizeData[x] = this.handleISOver(this.organizeData[x])
@@ -247,6 +302,98 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.organization_two {
+  height: 190px;
+  overflow: hidden;
+}
+
+.beiming_developer {
+  /deep/.el-dialog__header {
+    display: none;
+  }
+
+  /deep/.el-dialog__body {
+    padding: 0;
+  }
+
+  .beiming_developer_bill {
+    height: 480px;
+  }
+}
+
+.bill_two {
+  width: 100%;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('../../api/image/bg.png') no-repeat 0 0/100% 100%;
+
+  img {
+    width: 181px;
+    height: 160px;
+    margin-top: -20px;
+  }
+}
+
+.testBill {
+  width: 300px;
+  height: 480px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('../../api/image/bg.png') no-repeat 0 0/100% 100%;
+  flex-direction: column;
+
+  .fu_test {
+    margin-top: 82px;
+    width: 142px;
+    height: 159px;
+    overflow: hidden;
+  }
+
+  img {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .title_type {
+    margin-top: 41px;
+    padding: 5px 10px;
+    color: #FFF;
+    margin-bottom: 20px;
+    background: #41a1fa;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .iconfont {
+      font-size: 22px;
+      margin-left: -1px;
+    }
+  }
+
+  .title_phone {
+    text-decoration: underline;
+    color: #3296FA;
+    font-size: 18px;
+  }
+}
+
+.iconfont {
+  font-family: "icon_two" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: 'icon_two';
+  src: url('../../api/image/iconfont.ttf?t=1677570589501') format('truetype');
+}
+
 .organization {
   background: url('../../api/image/weitu.png') no-repeat 0 0/100% 100%;
   height: 190px;

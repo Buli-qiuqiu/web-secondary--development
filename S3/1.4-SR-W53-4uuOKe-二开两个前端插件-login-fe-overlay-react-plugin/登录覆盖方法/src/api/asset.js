@@ -23,6 +23,12 @@ export const loginAccount4Application = params =>
     `system/authority/loginAccount4Application?mobileOrWeb=mobile`,
     params
   );
+// web应用端登录
+export const loginAccount4ApplicationWeb = params =>
+  request.post(
+    `system/authority/loginAccount4Application?mobileOrWeb=web`,
+    params
+  );
 
 // 获取渠道
 export const queryAllMsg = () => request.get(`ext/system/userMsg/queryAllMsg`);

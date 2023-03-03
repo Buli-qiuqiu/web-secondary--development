@@ -1,7 +1,7 @@
-import React,{useEffect, useRef,useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import mapboxgl from "mapbox-gl";
-import {Button} from 'antd';
+import { Button, Modal } from 'antd';
 import * as applicationsService from '../api/asset';
 import './map.less';
 import { useMemoizedFn } from 'ahooks';
@@ -17,13 +17,13 @@ const preceedPointInArea = (lng, lat, points) => {
   let gpsStringArray = parking_gps.split('||')
   let polygon = []
   for (let index in gpsStringArray) {
-      let item = gpsStringArray[index]
-      let point = item.split(',')
-      if (point.length == 2) {
-          point['lng'] = parseFloat(point[0])
-          point['lat'] = parseFloat(point[1])
-          polygon.push(point)
-      }
+    let item = gpsStringArray[index]
+    let point = item.split(',')
+    if (point.length == 2) {
+      point['lng'] = parseFloat(point[0])
+      point['lat'] = parseFloat(point[1])
+      polygon.push(point)
+    }
   }
   let flag = isPointInPolygon(polygon, lng, lat)
 
@@ -40,71 +40,106 @@ const isPointInPolygon = (polygon, lng, lat) => {
   let polygonLats = [];
   let polygonLngs = [];
   for (let i = 0; i < numberOfPoints; i++) {
-      polygonLats.push(polygon[i]['lat']);
-      polygonLngs.push(polygon[i]['lng']);
+    polygonLats.push(polygon[i]['lat']);
+    polygonLngs.push(polygon[i]['lng']);
   }
 
   let polygonContainsPoint = false;
   for (let node = 0, altNode = (numberOfPoints - 1); node < numberOfPoints; altNode = node++) {
-      if ((polygonLngs[node] > lng != (polygonLngs[altNode] > lng))
-          && (lat < (polygonLats[altNode] - polygonLats[node])
-              * (lng - polygonLngs[node])
-              / (polygonLngs[altNode] - polygonLngs[node])
-              + polygonLats[node]
-          )
-      ) {
-          polygonContainsPoint = !polygonContainsPoint;
-      }
+    if ((polygonLngs[node] > lng != (polygonLngs[altNode] > lng))
+      && (lat < (polygonLats[altNode] - polygonLats[node])
+        * (lng - polygonLngs[node])
+        / (polygonLngs[altNode] - polygonLngs[node])
+        + polygonLats[node]
+      )
+    ) {
+      polygonContainsPoint = !polygonContainsPoint;
+    }
   }
 
   return polygonContainsPoint;
 }
-const getAreaId = (lngLat,area)=>{
+const getAreaId = (lngLat, area) => {
   let id = '';
-  area.forEach((item)=>{
-    const flag = preceedPointInArea(lngLat[0],lngLat[1],item?.coordinates || [])
-    if(flag) {
-      id = item.data_id; 
+  area.forEach((item) => {
+    const flag = preceedPointInArea(lngLat[0], lngLat[1], item?.coordinates || [])
+    if (flag) {
+      id = item.data_id;
     }
   })
   return id
 }
 
 const Map = (props) => {
-  const { data,updateData,styles={},zoom=14 } = props;
-  const [newData,setNewData] = useState()
-  const [type,setType]  = useState('point');
-  const [area,setArea] = useState([]);
+  const { data, updateData, styles = {}, zoom = 14, keyNode = 'u' } = props;
+  const [newData, setNewData] = useState()
+  const [type, setType] = useState('point');
+  const [area, setArea] = useState([]);
+  const [isModal, setIsModal] = useState(false);
+  const [maker, setMaker] = useState();
   const ref = useRef();
-  
-  const getArea = async()=>{
-    const {data} = await applicationsService.queryAll();
-    setArea(data?.area ? data?.area.filter((item)=>item.type === 'area') : [])
+
+  const getArea = async () => {
+    const { data } = await applicationsService.queryAll();
+    setArea(data?.area ? data?.area.filter((item) => item.type === 'area') : [])
   }
 
-  useEffect(()=>{
-    if(ref.current && !ref?.current?.map){
+  useEffect(() => {
+    if (ref.current && !ref?.current?.map) {
       const lngLat = data ? JSON.parse(data)?.list?.[0]?.lngLat ?? '' : ''
       ref.current.map = new mapboxgl.Map({
         container: ref.current,
         zoom: zoom,
-        center: lngLat || [116.471175,31.659480],
+        center: lngLat || [116.471175, 31.659480],
         style: 'http://223.243.100.141:35931/jingdian_mapbox/Code2/style.json',
       });
       ref.current.pointMarks = [];
+      if (keyNode == 'mobile' && !lngLat) {
+        let body = document.querySelector("body")
+        let script = document.createElement('script');
+        script.src = 'https://api.map.baidu.com/getscript?v=2.0&ak=vOvt0EvPgLFNSEo6Yr8sEZReGtmYS1Gz&services=&t=20230104104957'
+        body.appendChild(script)
+        setTimeout(() => {
+          var geolocation = new window.BMap.Geolocation();
+          geolocation.enableSDKLocation();
+          geolocation.getCurrentPosition(function (r) {
+            if (this.getStatus() === 0) {
+              ref.current.map.flyTo({ center: [r.point.lng, r.point.lat], zoom: zoom })
+              const pointMark = new mapboxgl.Marker().setLngLat([r.point.lng, r.point.lat]).addTo(ref.current.map);
+              ref.current.pointMarks.push(pointMark);
+              setNewData({ "list": [{ "lngLat": [r.point.lng, r.point.lat] }], "type": "point" })
+              updateData && updateData(JSON.stringify({ "list": [{ "lngLat": [r.point.lng, r.point.lat] }], "type": "point" }))
+            }
+            else {
+              console.log('failed' + this.getStatus());
+            }
+          });
+        }, 500)
+        ref.current.map.on('click', function (_e, a) {
+          let maker = handleIsMaker(_e.originalEvent.target)
+          if (maker) {
+            setMaker(maker)
+            setIsModal(true)
+            return
+          }
+        })
+        // },
+      }
+
       getArea()
     }
-  },[ref,type,data,zoom])
+  }, [ref, type, data, zoom])
 
-  const initMap = useMemoizedFn(()=>{
+
+  const initMap = useMemoizedFn(() => {
     const _data = data ? JSON.parse(data) : {};
-    if(props.isDetail && newData && newData?.type && JSON.stringify(newData) !== data){
-      if(newData?.type === 'point'){
-        ref.current.pointMarks.forEach((item)=>{
+    if (props.isDetail && newData && newData?.type && JSON.stringify(newData) !== data) {
+      if (newData?.type === 'point') {
+        ref.current.pointMarks.forEach((item) => {
           item.remove()
         })
-      }else{
-        if(newData?.type !== _data?.type){
+      } else {
+        if (newData?.type !== _data?.type) {
           ref.current.map.removeLayer('line-area');
           ref.current.map.removeLayer('line-area-stroke')
         }
@@ -112,12 +147,12 @@ const Map = (props) => {
     }
     setNewData(_data ?? {});
     setType(_data?.type || 'point');
-    if(_data?.type === 'area'){
+    if (_data?.type === 'area') {
       ref?.current?.map.on("load", () => {
         const features = [];
         let coordinates = [];
-        if(_data?.list && _data?.list?.length > 0){
-          _data?.list?.forEach((item)=>{
+        if (_data?.list && _data?.list?.length > 0) {
+          _data?.list?.forEach((item) => {
             features.push({
               type: 'Feature',
               geometry: {
@@ -128,24 +163,24 @@ const Map = (props) => {
             coordinates.push(item?.lngLat ?? [])
           })
         }
-        
-        
+
+
         ref?.current?.map.addSource('points-area', {
           type: 'geojson',
-          data:  {
+          data: {
             'type': 'FeatureCollection',
             'features': []
           }
         });
-        
+
         ref?.current?.map.addSource('line-area', {
           type: 'geojson',
-          data:  {
+          data: {
             'type': 'FeatureCollection',
             'features': []
           }
         });
-        
+
         ref?.current?.map.addLayer({
           id: 'line-area',
           type: 'fill',
@@ -163,7 +198,7 @@ const Map = (props) => {
             'line-color': '#ff0000',
             'line-width': 3,
             'line-opacity': 0.8,
-            'line-dasharray': [2,4]
+            'line-dasharray': [2, 4]
           }
         });
         coordinates = coordinates.concat([coordinates[0]]);
@@ -180,27 +215,34 @@ const Map = (props) => {
         });
         ref?.current?.map.getSource('line-area').setData(json);
       })
-    }else{
-      (_data?.list && _data?.list?.length > 0) && _data?.list.forEach((item)=>{
+    } else {
+      (_data?.list && _data?.list?.length > 0) && _data?.list.forEach((item) => {
         const pointMark = new mapboxgl.Marker().setLngLat(item?.lngLat ?? []).addTo(ref.current.map);
         ref.current.pointMarks.push(pointMark);
       })
     }
+    const geolocate = new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true, showUserHeading: true
+    });
+    ref.current.map.addControl(geolocate, "top-right")
   })
 
-  useEffect(()=>{
-    if((!newData || (newData && JSON.stringify(newData) !== data && props.isDetail)) && ref?.current?.map && data){
+  useEffect(() => {
+    if ((!newData || (newData && JSON.stringify(newData) !== data && props.isDetail)) && ref?.current?.map && data) {
       initMap()
     }
-  },[data,newData,initMap,props.isDetail])
+  }, [data, newData, initMap, props.isDetail])
 
-  
-  
-  const handleAreaRange = useMemoizedFn((e)=>{
-    if(!ref?.current?.map){
+
+
+  const handleAreaRange = useMemoizedFn((e) => {
+    if (!ref?.current?.map) {
       return
     }
-    const {map} = ref.current
+    const { map } = ref.current
     map.getCanvas().style.cursor = 'crosshair';
     e.stopPropagation();
     // clearLayerAndSource();
@@ -209,7 +251,7 @@ const Map = (props) => {
     map.doubleClickZoom.disable();
     setType('area');
     setNewData({});
-    ref.current.pointMarks.forEach((item)=>{
+    ref.current.pointMarks.forEach((item) => {
       item.remove()
     })
     let jsonPoint = {
@@ -225,7 +267,7 @@ const Map = (props) => {
     if (source) {
       map.getSource('points-area').setData(jsonPoint);
       map.getSource('line-area').setData(jsonLine);
-    } else{
+    } else {
       map.addSource('points-area', {
         type: 'geojson',
         data: jsonPoint
@@ -252,7 +294,7 @@ const Map = (props) => {
         'line-color': '#ff0000',
         'line-width': 3,
         'line-opacity': 0.8,
-        'line-dasharray': [2,4]
+        'line-dasharray': [2, 4]
       }
     });
 
@@ -268,6 +310,7 @@ const Map = (props) => {
     }
 
     map.on('click', function (_e) {
+      console.log('------------>事件值', _e);
       if (isMeasure) {
         let coords = [_e.lngLat.lng, _e.lngLat.lat];
         points.push(coords);
@@ -280,21 +323,21 @@ const Map = (props) => {
         let coords = [_e.lngLat.lng, _e.lngLat.lat];
         points.push(coords);
         isMeasure = false;
-        setNewData((prev)=>{
+        setNewData((prev) => {
           const newData = prev ? JSON.parse(JSON.stringify(prev)) : {}
-          if(!newData?.list){
+          if (!newData?.list) {
             newData.list = []
           }
           const filterPoints = []
-          points.forEach((item)=>{
-            const _index = filterPoints.findIndex((_item)=>JSON.stringify(_item.lngLat)===JSON.stringify(item))
-            if(_index === -1){
-              filterPoints.push({lngLat:item});
+          points.forEach((item) => {
+            const _index = filterPoints.findIndex((_item) => JSON.stringify(_item.lngLat) === JSON.stringify(item))
+            if (_index === -1) {
+              filterPoints.push({ lngLat: item });
             }
           })
           newData.type = 'area';
           newData.list = filterPoints;
-          console.log('===',filterPoints,newData)
+          console.log('===', filterPoints, newData)
           // onChange && onChange(JSON.stringify(newData))
           updateData && updateData(JSON.stringify(newData))
           return newData
@@ -323,46 +366,52 @@ const Map = (props) => {
     });
   })
 
-  const handlePointerClick = useMemoizedFn((e)=>{
-    if(!ref?.current?.map){
+  const handlePointerClick = useMemoizedFn((e) => {
+    if (!ref?.current?.map) {
       return
     }
-    if(type !== 'point'){
+    if (type !== 'point') {
       setNewData({})
       ref.current.map.removeLayer('line-area');
       ref.current.map.removeLayer('line-area-stroke')
-    }else{
+    } else {
       setNewData({});
-      ref.current.pointMarks.forEach((item)=>{
+      ref.current.pointMarks.forEach((item) => {
         item.remove()
       })
     }
     setType('point')
-    
+
     ref.current.map.getCanvas().style.cursor = 'crosshair';
     e.stopPropagation();
     ref.current.isDraw = true;
     // 禁止双击缩放
     ref.current.map.doubleClickZoom.disable();
-    ref.current.map.on('click', function (_e) {
+    ref.current.map.on('click', function (_e, a) {
+      let maker = handleIsMaker(_e.originalEvent.target)
+      if (maker) {
+        setMaker(maker)
+        setIsModal(true)
+        return
+      }
       if (ref.current.isDraw) {
         ref.current.map.getCanvas().style.cursor = 'grab'
         ref.current.isDraw = false;
         let endCoords = [_e.lngLat.lng, _e.lngLat.lat];
         const pointMark = new mapboxgl.Marker().setLngLat(endCoords).addTo(ref.current.map);
         ref.current.pointMarks.push(pointMark);
-        setNewData((prev)=>{
+        setNewData((prev) => {
           let _newData = prev ? JSON.parse(JSON.stringify(prev)) : {}
-          if(prev?.type !== 'point'){
+          if (prev?.type !== 'point') {
             _newData = {}
           }
-          if(!_newData?.list){
+          if (!_newData?.list) {
             _newData.list = []
           }
           _newData.type = 'point';
-          const _obj = {lngLat:endCoords};
-          let areaId = getAreaId(endCoords,JSON.parse(JSON.stringify(area))) || '';
-          if(areaId){
+          const _obj = { lngLat: endCoords };
+          let areaId = getAreaId(endCoords, JSON.parse(JSON.stringify(area))) || '';
+          if (areaId) {
             _obj['areaId'] = areaId;
           }
           _newData.list.push(_obj);
@@ -372,15 +421,58 @@ const Map = (props) => {
         })
       }
     })
+
   })
 
-  return <div style={{width: '100%',position: 'relative',height: '600px',overflow: 'hidden',...styles}}>
-      {!props?.isDetail && <>
-        <Button type="primary" onClick={handleAreaRange} style={{margin: '10px',zIndex: 1}}>地图划区</Button>
-        <Button type="primary" onClick={handlePointerClick} style={{margin: '10px',zIndex: 1}}>标点</Button>
-      </>}
-      <div ref={ref} id="map" style={{ width: "100%", height: "100%",position: "absolute",top: 0,bottom: 0}} className="marker">
-      </div>
+  const handleIsMaker = (node) => {
+    let keyValue = node.parentNode
+    if (node.className == 'mapboxgl-canvas') return false
+    do {
+      if (typeof keyValue.className == 'string') {
+        if (keyValue.className.indexOf('mapboxgl-marker') != -1) {
+          return keyValue
+        } else {
+          keyValue = keyValue.parentNode
+        }
+      } else {
+        keyValue = keyValue.parentNode
+      }
+    } while (true);
+    // return true
+  }
+  const handleRemov = () => {
+    maker && maker.remove()
+    setNewData({});
+    setIsModal(false)
+  }
+
+  return <div style={{ width: '100%', position: 'relative', height: keyNode != 'mobile' ? '600px' : '50vh', overflow: 'hidden', ...styles }}>
+    {!props?.isDetail && <>
+      {keyNode != 'mobile' && <Button type="primary" onClick={handleAreaRange} style={{ margin: '10px', zIndex: 1 }}>地图划区</Button>}
+      <Button type="primary" onClick={handlePointerClick} style={{ margin: '10px', zIndex: 1 }}>标点</Button>
+    </>}
+    <div ref={ref} id="map" style={{ width: "100%", height: "100%", position: "absolute", top: 0, bottom: 0 }} className="marker">
+    </div>
+    <Modal
+      width='50%'
+      onOk={
+        handleRemov
+      }
+      maskClosable={false}
+      okText={'确定'}
+      cancelText={'取消'}
+      closable={false}
+      centered={true}
+      title="删除定位点"
+      wrapClassName="map_modal"
+      visible={isModal}
+      destroyOnClose
+      onCancel={() => {
+        setIsModal(false)
+      }}
+    >
+      确定是否删除
+    </Modal>
   </div>;
 };
 

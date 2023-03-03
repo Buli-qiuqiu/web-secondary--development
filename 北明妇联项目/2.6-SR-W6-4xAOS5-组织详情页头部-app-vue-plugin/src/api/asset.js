@@ -26,6 +26,8 @@ export const browseAdd = (params) => request.post(`service/dataapi/rest/73ebeaba
 //查询当前用户
 export const userQuery = () => request.get(`system/authority/user`);
 
+//二维码生成
+export const QrCode = (params) => request.post(`/ext/createwxaqrcode`, params, { responseType: 'blob' })
 
 //匿名查询
 export const offieDetilN = (params) => request.post(`service/dataapi/rest/ae380e04-e4b9-48a2-a020-87ce2b202d22`, params);

@@ -7,7 +7,7 @@
          <!-- 登录状态-用户信息 -->
          <div class="user_info">
             <!-- 用户头像 -->
-            <div class="info_head_portrait">
+            <div class="info_head_portrait" @click="openActionSheet">
                <img :src="userPicture" alt="" />
             </div>
             <template v-if="isLogin">
@@ -21,11 +21,11 @@
                   <img src="../../assets/个人信息-切换用户.png" alt="" @click="openPopup" />
                </div>
                <!-- 积分 -->
-               <div class="info_integral">
+               <!-- <div class="info_integral">
                   <div class="integral_box">
                      <div class="integral_number">{{ userForm.integral }} 积分</div>
                   </div>
-               </div>
+               </div> -->
                <!-- 编辑资料 -->
                <div class="info_edit_button">
                   <van-button type="primary" @click="triggerEvent('editData', {})">编辑资料</van-button>
@@ -43,7 +43,8 @@
                   <div class="swiper-slide">
                      <div class="menu_left">
                         <div class="menu_box" v-for="(item, index) in menuLeftList" :key="index" @click="routerLink(item)">
-                           <img :src="item.picture.url" alt="" />
+                           <!-- <img :src="item.picture.url" alt="" /> -->
+                           <img :src="handleImageSrc(item.picture.url)" alt="" />
                            <div>{{ item.title }}</div>
                         </div>
                      </div>
@@ -52,7 +53,8 @@
                   <div class="swiper-slide">
                      <div class="menu_left">
                         <div class="menu_box" v-for="(item, index) in menuRightList" :key="index" @click="routerLink(item)">
-                           <img :src="item.picture.url" alt="" />
+                           <!-- <img :src="item.picture.url" alt="" /> -->
+                           <img :src="handleImageSrc(item.picture.url)" alt="" />
                            <div>{{ item.title }}</div>
                         </div>
                      </div>
@@ -67,7 +69,8 @@
                <van-cell-group>
                   <van-cell v-for="(item, index) in userAccountList" :key="index" :title="intlGetKey(item.userName)" clickable @click="userAccount = item.id">
                      <template #icon>
-                        <img class="user_account" :src="item.photo" />
+                        <!-- <img class="user_account" :src="item.photo" /> -->
+                        <img class="user_account" :src="handleImageSrc(item.photo)" />
                      </template>
                      <template #right-icon>
                         <van-radio :name="item.id" @click="changeUser(item)" />
@@ -76,21 +79,21 @@
                </van-cell-group>
             </van-radio-group>
          </van-popup>
+
+         <!-- 退出登录 -->
+         <van-action-sheet v-model="actionSheetIsShow" :actions="[{ name: '退出登录' }]" cancel-text="取消" close-on-click-action @select="loginOut" @cancel="actionSheetIsShow = false" />
       </div>
    </div>
 </template>
 
 <script>
 import "./app.less";
-import { getDataApi, queryAssetById, getAccountList, user, loginByUser } from "../../api/asset";
+import { getDataApi, queryMenuData, getAccountList, user, loginByUser, logout } from "../../api/asset";
 
 // 引入swiper插件
 import Swiper, { Pagination } from "swiper";
 import "swiper/swiper-bundle.css";
-
 Swiper.use([Pagination]);
-
-import VConsole from "vconsole";
 
 import defaultPicture from "../../assets/默认头像.png";
 
@@ -142,12 +145,13 @@ export default {
          accountCode: "",
          // 用户id
          accountId: "",
+
+         // 动作面板
+         actionSheetIsShow: false,
       };
    },
 
    mounted() {
-      // new VConsole();
-
       this.userForm.nickname = "昵称";
       this.userForm.integral = 0;
       this.userPicture = defaultPicture;
@@ -165,6 +169,16 @@ export default {
    methods: {
       intlGetKey(name) {
          return name;
+      },
+
+      // 转换图片地址
+      handleImageSrc(src) {
+         let imgSrc = src;
+         if (window?.configuration?.system_resource_access_prefix) {
+            this.userPicture = `${window?.configuration?.system_resource_access_prefix}${imgSrc}`;
+         }
+         console.log("菜单图片地址--->", imgSrc);
+         return imgSrc;
       },
 
       // 创建轮播图
@@ -227,10 +241,13 @@ export default {
             }
          });
          // 获取菜单数据
-         await queryAssetById("07d82842-286a-1365-1a8f-0501b6a8acb6").then((res) => {
-            let resData = this.translatePlatformDataToJsonArray(res);
-
-            resData.forEach((item, index) => {
+         let dataForm = {
+            queryCondition: {
+               queryColumns: ["title", "title", "link", "picture", "data_id"],
+            },
+         };
+         await queryMenuData(dataForm).then((res) => {
+            res.data.results.forEach((item, index) => {
                item.picture = JSON.parse(item.picture)[0];
 
                if (index < 4) {
@@ -247,9 +264,14 @@ export default {
                if (this.userForm.head_picture) {
                   let picture = JSON.parse(this.userForm.head_picture);
 
+                  console.log("头像数据-->", picture);
+
                   this.userPicture = picture[0].url;
+                  if (window?.configuration?.system_resource_access_prefix) {
+                     this.userPicture = `${window?.configuration?.system_resource_access_prefix}${picture[0].url}`;
+                  }
+
                   this.$forceUpdate();
-                  console.log("头像地址", picture[0].url);
                } else {
                   this.userPicture = defaultPicture;
                }
@@ -283,6 +305,21 @@ export default {
          });
       },
 
+      // 打开动作面板
+      openActionSheet() {
+         console.log("isLogin", this.isLogin);
+         if (this.isLogin) {
+            this.actionSheetIsShow = true;
+         }
+      },
+
+      // 退出登录
+      loginOut() {
+         logout();
+         let href = `${window.location.origin}/application/firstpage/9b7b76e8-3099-aa84-305c-7a7a456f287b`;
+         window.location.href = href;
+      },
+
       // 跳转地址
       routerLink(menu) {
          // 未登录跳转登录页
@@ -294,7 +331,6 @@ export default {
             }
          } else {
             let href = `${window.location.origin}/login?redirect_url=%2Fapplication%2Fmobileview%2F604e00d4-66a7-4df3-043d-4f0f326a323e%3FidType%3Dpage&appid=9b7b76e8-3099-aa84-305c-7a7a456f287b`;
-            console.log("未登录", href);
             window.location.href = href;
          }
       },

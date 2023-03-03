@@ -4,7 +4,7 @@ import { getThemeStyle } from "../themeColor";
 
 const List = (props) => {
   const { data, formConfig, customConfig } = props;
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   return <div style={getThemeStyle(formConfig.theme)}>{data}</div>;
 };

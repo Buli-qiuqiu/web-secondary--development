@@ -1,7 +1,7 @@
 {
   "id": "f01271bd-39d2-41bc-b910-b1dac90ab6ed",
   "type": "reporting",
-  "main": "app.76838c83.js",
+  "main": "app.a0691a2f.js",
   "version": "2",
   "props": {
     "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
