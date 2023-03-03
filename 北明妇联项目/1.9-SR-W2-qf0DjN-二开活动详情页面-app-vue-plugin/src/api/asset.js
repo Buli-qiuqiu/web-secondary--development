@@ -9,6 +9,11 @@ export const queryAssetById = (id, count = 200) =>
   request.post(`/asset/getAssetData?asset_id=${id}&count=${count}`, { filters: [] });
 
 /**
+ * 查询用户是否登录
+ */
+export const isLogin = () => request.get(`system/authority/isLogin`);
+
+/**
 * 查询用户
 */
 export const queryUser = () =>
@@ -17,8 +22,8 @@ export const queryUser = () =>
 /**
 * JS-SDK签名算法
 */
-export const wxJsSdk = (url) =>
-  request.get(`/ext/js-sdk?url=${url}`); 
+export const wxJsSdk = (message) =>
+  request.get(`/ext/js-sdk?url=${message.url}`); 
 
 /**
 * 查询活动

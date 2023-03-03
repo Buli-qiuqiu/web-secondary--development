@@ -9,11 +9,13 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import { Form, FormItem, Input } from 'element-ui';
-Vue.use(Input);
-Vue.use(Form);
-Vue.use(FormItem);
+// import Vue from 'vue';
+// import { Form, FormItem, Input } from 'element-ui';
+// const Vue = window.Vue;
+// const { Form, FormItem, Input } = window.ELEMENT;
+// Vue.use(Input);
+// Vue.use(Form);
+// Vue.use(FormItem);
 
 export default {
   name: "DesignConfiguration",
@@ -46,5 +48,4 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.peizhi {}
 </style>

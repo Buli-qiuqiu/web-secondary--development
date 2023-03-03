@@ -16,7 +16,7 @@
         </div>
         <div class="paoMingBox">
           <div class="imgList">
-            <img v-for="(item,index) in baoMingList" :key="index" :src="item.picture" alt="" class="userImg">
+            <img v-for="(item,index) in baoMingList" :key="index" :src="prefixIp + item.picture" alt="" class="userImg">
           </div>
           <div class="signUpBox">
             等<span class="signUp">{{ baoMingNum }}</span>人报名
@@ -65,7 +65,7 @@
         <!-- 滚动加载 -->
         <van-list v-model="loading" :finished="finished" :offset="50" finished-text="没有更多评论了" @load="onLoad" :immediate-check="false">
           <div class="pingLunItem" v-for="(item,index) in pingLunList" :key="index">
-            <img class="pingLunImg" :src="item.url" alt="">
+            <img class="pingLunImg" :src="prefixIp + item.url" alt="">
             <div class="pingLunCon">
               <div class="userNameBox">
                 <span class="userInfo">{{ item.critic }}</span>
@@ -94,7 +94,7 @@
     <div v-if="activeMsg.report_status == 0" class="summarize">
       <div class="summarizeTtitle">活动集锦</div>
       <div class="summarizeImgBox">
-        <img class="imgSummarize" :src="headImg" alt="">
+        <img class="imgSummarize" :src="prefixIp + headImg" alt="">
         <span class="imgTitle">{{ activeOverMsg.nickname }}</span>
       </div>
       <div class="summarizeMsg">{{ activeOverMsg.summary_content }}</div>
@@ -102,10 +102,10 @@
         <span class="subTime">发布时间：{{ activeOverMsg.summarize_time }}</span>
       </div>
       <div  v-if="activeOverImgList.length > 1" class="summarizeInfoImgBox">
-        <img v-for="(imgX,index) in activeOverImgList" :key="index" class="summarizeInfoImg" :src="imgX" alt="">
+        <img v-for="(imgX,index) in activeOverImgList" :key="index" class="summarizeInfoImg" :src="prefixIp + imgX" alt="">
       </div>
       <div v-if="activeOverImgList.length == 1" class="overImgBox">
-        <img class="overImg" :src="'http://10.15.110.25:18880/'+activeOverImgList[0]" alt="">
+        <img class="overImg" :src="prefixIp + activeOverImgList[0]" alt="">
       </div>
     </div>
     <!-- 发布活动总结-接完 -->
@@ -138,17 +138,24 @@
       </div>
       <van-button v-if="activeMsg.report_status == 1" class="paoMingBtn" type="default" color="#3296fb" @click="paoMing">{{ activeOver == 0 ? "立即报名": "取消报名" }}</van-button>
       <van-button v-if="activeMsg.report_status == 0" class="paoMingBtn" :disabled="true" type="default" color="#bdbabd">报名截止</van-button>
+      <van-button v-if="activeMsg.report_status == 2" class="paoMingBtn" :disabled="true" type="default" color="#bdbabd">未开始</van-button>
     </div>
     <!-- 评论弹窗-接完 -->
     <van-popup v-model="isPingLun" position="bottom" :style="{ height: '400px' }">
       <van-field v-model="pingLunMessage" rows="13" maxlength="300" autosize type="textarea" show-word-limit placeholder="评论内容需要等待管理员审核通过后才能显示" />
-      <van-button class="fabuBtn" round size="mini" type="default" @click="addPingLun">发布</van-button>
+      <van-button class="fabuBtn" round size="mini" :style="{ 'background': !pingLunMessage ? '#BBBBBB' : '#1989fa' }" type="default" @click="addPingLun">发布</van-button>
     </van-popup>
   </div>
 </template>
+
 <script>
-import Vue from 'vue';
+// import Vue from 'vue';
+// const Vue = window.Vue;
+// 引入 Vconsole
+// import Vconsole from 'vconsole';
 import moment from 'moment';
+import _ from 'lodash'
+
 import {
   isLogin, // 查询用户是否登录
   queryUser, // 1 查询用户
@@ -178,17 +185,17 @@ import {
   queryDelBaoMingData,// 1 删除后报名人数-1
   queryLiuLanNum,// 1 浏览次数+1
 } from "../../api/asset.js";
-import { Button, Icon, Popup, Field, List, Toast, Dialog } from 'vant';
-// 引入 Vconsole
-import Vconsole from 'vconsole';
+// import { Button, Icon, Popup, Field, List, Toast, Dialog } from 'vant';
+// const { Toast, Dialog } = window.vant;
 
-Vue.use(Button);
-Vue.use(Icon);
-Vue.use(Popup);
-Vue.use(Field);
-Vue.use(List);
-Vue.use(Toast);
-Vue.use(Dialog);
+
+// Vue.use(Button);
+// Vue.use(Icon);
+// Vue.use(Popup);
+// Vue.use(Field);
+// Vue.use(List);
+// Vue.use(Toast);
+// Vue.use(Dialog);
 
 const getQueryString = name => {
   const reg = new RegExp(name + "=([^&]*)(&|$)", "i");
@@ -215,9 +222,13 @@ export default {
   },
   computed: {},
   data() {
+    const { Toast, Dialog } = window.vant;
     return {
       //必需，不可删除
+      toastel: Toast,
+      dialogel: Dialog,
       id: "",
+      prefixIp: "",
       cookeiId: "",
       adminInfo: {},
       adminInfoId: "",
@@ -259,6 +270,7 @@ export default {
     this.getBaoMings(this.avtivesId);
     this.getPingLuns(this.avtivesId);
     this.queryLiuLanNum();
+    this.prefixIp = window?.configuration?.system_resource_access_prefix || "";
   },
   methods: {
     /**
@@ -309,9 +321,10 @@ export default {
     },
     // 跳转小程序登录页
     toLogin(){
-      // let appId = 'wx398192d4a9830f4d';
-      // wx.miniProgram.redirectTo({ url: `../login/login&appId=${appId}` })
-      wx.miniProgram.redirectTo({ url: `../login/login` })
+      let appId = '9b7b76e8-3099-aa84-305c-7a7a456f287b';
+      let { pathname, search } = window.location;
+      let pageUrl = encodeURIComponent(pathname + search) + `${search == "" ? '?' : '&'}appId=${appId}`;
+      wx.miniProgram.redirectTo({ url: `../login/login?redirect_url=${pageUrl}` })
     },
 
     // 活动总结跳转
@@ -356,22 +369,22 @@ export default {
               success: (resp) => {},
               fail(error) {
                 console.log('跳转失败error', error);
-                Toast.fail('跳转失败');
+                this.toastel.fail('跳转失败');
               },
             });
           } else {
-            Toast.fail('经纬度缺失');
+            this.toastel.fail('经纬度缺失');
           }
         });
       }else {
-        Toast.fail('未找到WX');
+        this.toastel.fail('未找到WX');
       }
     },
 
     // 关注
     guanZhuHandel(){
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -399,8 +412,13 @@ export default {
         this.isGuanZhu = 1;
         this.getAddGuanZhu();
         this.getActiveType();
+        this.dialogel.alert({
+          message: '关注成功',
+        }).then(() => {
+          // on close
+        });
       }else {
-        Toast.fail('关注失败');
+        this.toastel.fail('关注失败');
       }
       // console.log('增加关注数据', res);
     },
@@ -423,8 +441,13 @@ export default {
         this.isGuanZhu = 0;
         this.getDelGuanZhu();
         this.getActiveType();
+        this.dialogel.alert({
+          message: '取消关注',
+        }).then(() => {
+          // on close
+        });
       } else {
-        Toast.fail('放弃关注失败');
+        this.toastel.fail('放弃关注失败');
       }
       // console.log('增加关注数据', res);
     },
@@ -438,7 +461,7 @@ export default {
     },
 
     // 底部功能栏
-    bottomBtnHand(type){
+    bottomBtnHand: _.debounce(function (type){
       switch (type) {
         case 'collect':
           if (this.isCollect == 0) {
@@ -456,7 +479,7 @@ export default {
           break;
         case 'pingLun':
           if (this.adminInfoId == "") {
-            Dialog.confirm({
+            this.dialogel.confirm({
               title: '请先登录',
               message: '点击确认跳转登录页',
             }).then(() => {
@@ -468,11 +491,12 @@ export default {
           }
           break;
       }
-    },
+    }, 500),
+
     // 收藏数据
     async getCollectData() {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -493,8 +517,11 @@ export default {
           this.isCollect = 1;
           this.getAddCollect();
           this.getActiveType();
+          // this.dialogel.alert({
+          //   message: '收藏成功',
+          // }).then(() => {});
         } else {
-          Toast.fail('收藏失败');
+          this.toastel.fail('收藏失败');
         }
       }
     },
@@ -511,18 +538,17 @@ export default {
     // -收藏数据
     async getDelCollectData() {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
-          // on confirm
           this.toLogin();
-          // console.log('1111111111111确认');
         }).catch(() => {
-          // on cancel
-          // console.log('22222222取消');
         });
+
       } else {
+
         const params = {
           data_id: this.avtivesId,
           user_id: this.adminInfoId
@@ -532,9 +558,13 @@ export default {
           this.isCollect = 0;
           this.getDelCollect();
           this.getActiveType();
+          // this.dialogel.alert({
+          //   message: '取消收藏',
+          // }).then(() => {});
         } else {
-          Toast.fail('取消收藏失败');
+          this.toastel.fail('取消收藏失败');
         }
+
       }
     },
     // 收藏数据-1
@@ -551,7 +581,7 @@ export default {
     // 点赞数据
     async getDianZanData() {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -572,8 +602,11 @@ export default {
           this.isPraise = 1;
           this.getAddCollect();
           this.getActiveType();
+          // this.dialogel.alert({
+          //   message: '点赞成功',
+          // }).then(() => {});
         } else {
-          Toast.fail('点赞失败');
+          this.toastel.fail('点赞失败');
         }
       }
     },
@@ -589,7 +622,7 @@ export default {
     // 删除点赞数据
     async getDelDianZanData() {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
@@ -606,8 +639,11 @@ export default {
           this.isPraise = 0;
           this.getDelDianZan();
           this.getActiveType();
+          // this.dialogel.alert({
+          //   message: '取消点赞',
+          // }).then(() => {});
         } else {
-          Toast.fail('取消点赞失败');
+          this.toastel.fail('取消点赞失败');
         }
       }
     },
@@ -624,18 +660,16 @@ export default {
     // 添加报名数据
     async paoMing() {
       if (this.adminInfoId == "") {
-        Dialog.confirm({
+
+        this.dialogel.confirm({
           title: '请先登录',
           message: '点击确认跳转登录页',
         }).then(() => {
-          // on confirm
           this.toLogin();
-          // console.log('1111111111111确认');
-        }).catch(() => {
-          // on cancel
-          // console.log('22222222取消');
-        });
+        }).catch(() => {});
+
       } else {
+
         if (this.activeOver == 0) {
           const params = {
             data_id: this.avtivesId,
@@ -645,17 +679,24 @@ export default {
           if (res.status == 200) {
             this.paoMingAddNum();
             this.getActiveType();
+            this.dialogel.alert({
+              message: '报名成功',
+            }).then(() => {});
           } else {
-            Toast.fail('报名失败');
+            // this.toastel.fail('报名失败');
+            this.dialogel.alert({
+              message: '报名失败',
+            }).then(() => {});
           }
         }else {
-          Dialog.confirm({
+          this.dialogel.confirm({
             message: '确认取消报名？',
           }).then(() => {
             this.paoMingDel();
           }).catch(() => {
           });
         }
+
       }
     },
     // 报名+1
@@ -678,8 +719,14 @@ export default {
       if (res.status == 200) {
         this.paoMingDelNum();
         this.getActiveType();
+        this.dialogel.alert({
+          message: '已取消报名',
+        }).then(() => {});
       } else {
-        Toast.fail('取消报名失败');
+        // this.toastel.fail('取消报名失败');
+        this.dialogel.alert({
+          message: '取消报名失败',
+        }).then(() => { });
       }
     },
     // 报名-1
@@ -711,9 +758,12 @@ export default {
         this.isPingLun = false;
         this.pingLunMessage = "";
         this.getPingLunNum();
+        // this.dialogel.alert({
+        //   message: '评论成功',
+        // }).then(() => { });
         // this.getPingLuns(this.avtivesId);
       } else {
-        Toast.fail('评论失败');
+        this.toastel.fail('评论失败');
       }
     },
     
@@ -1280,7 +1330,6 @@ export default {
       top: 320px;
       width: 72px;
       height: 24px;
-      background: #BBBBBB;
       color: #FFFFFF;
     }
   }

@@ -14,15 +14,20 @@
 </template>
 
 <script>
-import {
-  Button,
-  Input
-} from "element-ui";
-import Vue from "vue";
+// const Vue = window.Vue;
+// const {
+//   Button,
+//   Input
+// } = window.ELEMENT;
+// import {
+//   Button,
+//   Input
+// } from "element-ui";
+// import Vue from "vue";
 import configJson from "../../../pluginTemp/config.json";
 
-Vue.use(Button);
-Vue.use(Input);
+// Vue.use(Button);
+// Vue.use(Input);
 export default {
   name: "Options",
   components: {},
