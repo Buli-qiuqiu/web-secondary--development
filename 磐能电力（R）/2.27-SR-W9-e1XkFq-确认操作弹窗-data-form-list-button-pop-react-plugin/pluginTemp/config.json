@@ -1,0 +1,15 @@
+{
+  "id": "ceb17703-6b2d-47d0-9c44-6920c90ba39e",
+  "type": "data-form-list-button-pop",
+  "main": "app.7798e3b5.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"height\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\",\"height\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W9-e1XkFq",
+  "requirement-name": "确认操作弹窗",
+  "suggestedFolderName": "2.27-SR-W9-e1XkFq-确认操作弹窗-data-form-list-button-pop-react-plugin"
+}
