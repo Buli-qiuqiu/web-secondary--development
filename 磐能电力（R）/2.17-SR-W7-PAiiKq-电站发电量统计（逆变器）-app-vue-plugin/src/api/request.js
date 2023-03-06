@@ -5,7 +5,7 @@ let apiContextPath = "";
 const prefix = window.apiContextPathPrefix ? (window.apiContextPathPrefix + "/") : ""
 if (process.env.NODE_ENV === "development") {
   document.cookie =
-    "token=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY3Njg2NDUwODQ1MiwidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.E8PNK06bAZA_4r_2MVKlT5az897CJBIqCjdSr7osGZk";
+    "token=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY3NzcyMjg5ODAxMywidXNlcklkIjoiMTIzNDU2Nzg5MCJ9.MkQEdJxRcNbzwjO_25-sE8PM1gx0wUBAnij5ViYcd-U";
   document.cookie =
     "refreshToken=eyJhbGciOiJIUzI1NiJ9.eyJsb2dpblRpbWVzdGFtcCI6MTY2MDUzMTEwMTYwN30.LLFogLE1s0_z1xs-D-iB_q3v7YI8zutqHtfEcD3kLIY";
   document.cookie = "username=admin";
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 const instance = axios.create({
-  baseURL: `${prefix}${apiContextPath}sdata/rest`,
+  baseURL: `${apiContextPath}/dtyq/pngf/sdata/rest`,
   timeout: 60000,
   validateStatus: function (status) {
     return status >= 200 && status < 300; // default

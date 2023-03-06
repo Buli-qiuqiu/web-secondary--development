@@ -1,0 +1,19 @@
+{
+  "id": "48c6467f-489e-4fb3-a903-72225f8848a8",
+  "type": "app",
+  "main": "main.c54afb57.js",
+  "version": "2",
+  "props": {
+    "type": "navigation",
+    "img": "APP_0001.png",
+    "name": "dsadq-1",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "首页名称",
+      "隐藏菜单id",
+      "隐藏展开菜单id"
+    ]
+  }
+}

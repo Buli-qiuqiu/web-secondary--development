@@ -14,6 +14,7 @@ export default {
     value: String,
     mainInit: Function,
     allComponentList: Array,
+    eventBus: Function,
   },
   data() {
     return {};

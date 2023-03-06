@@ -32,7 +32,7 @@ if (process.env.NODE_ENV !== "production") {
     }
     window.VueRef.then(() => {
       props.mainInit = mainInit;
-      run(dom, props);
+      run(dom, props, eventBus);
     });
   });
 }
@@ -70,13 +70,14 @@ function loadStyle(url) {
 
   document.head.appendChild(style);
 }
-function run(dom, props) {
+function run(dom, props, eventBus) {
   if (dom.childNodes.length > 0) {
     dom.removeChild(dom.childNodes[0]);
   }
+  props.eventBus = eventBus;
   const div = document.createElement("div");
   dom.appendChild(div);
   new Vue({
-    render: (h) => <App {...{ props }} />,
+    render: (h) => <App {...{ props }}  />,
   }).$mount(div);
 }

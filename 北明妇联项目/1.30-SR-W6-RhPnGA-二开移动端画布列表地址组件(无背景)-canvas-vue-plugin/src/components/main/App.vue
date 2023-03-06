@@ -18,6 +18,7 @@ export default {
     value: String,
     mainInit: Function,
     allComponentList: Array,
+    eventBus: Function,
   },
   computed: {},
   data() {
@@ -28,6 +29,27 @@ export default {
     };
   },
   async mounted() {
+    this.eventBus.on((newProps) => {
+      let lat2 = "";
+      let long2 = "";
+      newProps.allComponentList.forEach((item, index) => {
+        if (item.title == "latitude") {
+          for (const k in newProps.record) {
+            if (k == item.id) {
+              lat2 = newProps.record[k];
+            }
+          }
+        }
+        if (item.title == "longitude") {
+          for (const k in newProps.record) {
+            if (k == item.id) {
+              long2 = newProps.record[k];
+            }
+          }
+        }
+      });
+      this.valuePosition = lat2 + "," + long2;
+    });
     let lat = "";
     let long = "";
     this.allComponentList.forEach((item, index) => {

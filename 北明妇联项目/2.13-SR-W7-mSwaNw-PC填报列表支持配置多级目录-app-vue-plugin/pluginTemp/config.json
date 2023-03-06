@@ -1,7 +1,7 @@
 {
   "id": "8b45959f-f77f-449b-a060-1704d66d7cbf",
   "type": "app",
-  "main": "app.fd70bfbb.js",
+  "main": "app.c93298e2.js",
   "version": "2",
   "props": {
     "type": "customize",
@@ -14,7 +14,9 @@
       "id",
       "树资产ID",
       "组件宽",
-      "组件高"
+      "组件高",
+      "左边组件宽",
+      "右边组件宽"
     ]
   },
   "configuration": true,

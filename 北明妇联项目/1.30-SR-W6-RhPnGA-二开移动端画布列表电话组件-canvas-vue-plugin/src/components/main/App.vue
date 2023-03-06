@@ -17,6 +17,7 @@ export default {
     record: Object,
     value: String,
     mainInit: Function,
+    eventBus: Function,
   },
   computed: {},
   data() {
@@ -27,6 +28,9 @@ export default {
   },
   mounted() {
     console.log(this.value, 29);
+    this.eventBus.on((newProps) => {
+      this.value = newProps.value;
+    });
     //此方法封装了事件注册，不可删除
     this.mainInit(this);
     this.initData();

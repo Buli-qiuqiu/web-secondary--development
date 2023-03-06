@@ -13,6 +13,7 @@ export default {
     record: Object,
     value: String,
     mainInit: Function,
+    eventBus: Function,
     allComponentList: Array,
   },
   data() {

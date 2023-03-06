@@ -4,7 +4,8 @@ module.exports = {
     proxy: {
       "/api": {
         // target: "http://121.36.134.217:18080/",
-        target: "http://121.36.134.217:47264/dtyq/pngf/",
+        // target: "http://121.36.134.217:47264/dtyq/pngf/",
+        target: "http://10.15.70.38:18080/",
         changeOrigin: true,
         pathRewrite: {
           "/api": "",

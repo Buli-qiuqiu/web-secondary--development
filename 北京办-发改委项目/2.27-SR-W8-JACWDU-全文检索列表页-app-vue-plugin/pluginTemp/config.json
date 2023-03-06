@@ -1,0 +1,23 @@
+{
+  "id": "8350f56f-3460-4eb5-8811-34aea91e7901",
+  "type": "app",
+  "main": "app.ab6addc3.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "应用二开_vue",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "id",
+      "asset_id",
+      "跳转URL"
+    ]
+  },
+  "configuration": true,
+  "requirement-number": "SR-W8-JACWDU",
+  "requirement-name": "全文检索列表页",
+  "suggestedFolderName": "2.27-SR-W8-JACWDU-全文检索列表页-app-react-plugin"
+}

@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" ref="app-secondary" class="app-secondary">-----------------------------</div>
+  <div :id="id" ref="app-secondary" class="app-secondary"></div>
 </template>
 <script>
 // import { this.appVariables, mockChangeCustomConfig } from "../development/mockData";

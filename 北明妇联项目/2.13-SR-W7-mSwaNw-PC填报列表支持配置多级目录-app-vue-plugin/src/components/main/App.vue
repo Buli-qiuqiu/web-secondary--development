@@ -7,7 +7,7 @@
     :style="{ width: this.customConfig.组件宽 || '100%', height: this.customConfig.组件高 || '100%' }"
   >
     <!-- <el-input placeholder="输入关键字进行过滤" v-model="filterText"> </el-input> -->
-    <div class="treeLeft">
+    <div class="treeLeft" :style="{ width: this.customConfig.左边组件宽 || '63%' }">
       <span style="color: #367583; font-weight: 700">┃ 组织</span>
       <el-tree
         :data="leftTreedata"
@@ -18,8 +18,7 @@
         ref="tree"
         @node-click="(data, node, item) => nodeClick(data, node, item, 'left')"
         icon-class=" "
-        :default-expanded-keys="['32']"
-        style="height: 94%; overflow-y: auto"
+        :default-expanded-keys="['320000']"
       >
         <span class="custom-tree-node" slot-scope="{ node, data }" v-if="data.type == 'area'">
           <svg
@@ -95,7 +94,7 @@
         </span>
       </el-tree>
     </div>
-    <div class="treeRight">
+    <div class="treeRight" :style="{ width: this.customConfig.右边组件宽 || '35%' }">
       <span style="color: #367583; font-weight: 700">┃ 部门</span>
       <el-tree
         :data="rightTreedata"
@@ -107,7 +106,6 @@
         ref="tree"
         icon-class=" "
         @node-click="(data, node, item) => nodeClick(data, node, item, 'right')"
-        style="height: 94%; overflow-y: auto"
       >
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <svg t="1676345689230" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2309" width="16" height="16" style="margin-top: 2px">
@@ -210,17 +208,17 @@ export default {
     nodeClick(data, node, item, param) {
       console.log(data, node, item, param);
       if (param == "left") {
-        node.childNodes.forEach((item) => {
-          item.expanded = true;
-        });
+        // node.childNodes.forEach((item) => {
+        //   item.expanded = true;
+        // });
         this.rightTreedata = this.nodeAllData.filter((item) => {
           return item.type == "office" && data.citycode == item.parentcode;
         });
       }
 
-      if (param == "right") {
-        this.triggerEvent("treeClick", data);
-      }
+      // if (param == "right") {
+      this.triggerEvent("treeClick", data);
+      // }
     },
     blurTreeEditInput(data) {
       console.log(data);
@@ -278,12 +276,12 @@ export default {
   padding-right: 8px;
 }
 .treeLeft {
-  width: 63%;
   height: 94%;
+  overflow-y: auto;
 }
 .treeRight {
-  width: 35%;
   height: 94%;
+  overflow-y: auto;
 }
 .treeEditInput {
   /deep/.el-input__inner {
