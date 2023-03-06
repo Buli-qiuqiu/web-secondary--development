@@ -1,0 +1,15 @@
+{
+  "id": "76817031-1428-48c4-9c3a-cfad964d793f",
+  "type": "reporting",
+  "main": "app.40f10c7f.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W9-KJ6NSj",
+  "requirement-name": "自定义区间日期组件",
+  "suggestedFolderName": "2.27-SR-W9-KJ6NSj-自定义区间日期组件-reporting-react-plugin"
+}
