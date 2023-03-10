@@ -1,0 +1,22 @@
+{
+  "id": "acfb6b59-313e-49de-ab0e-1d487833607c",
+  "type": "app",
+  "main": "main.758c31f4.js",
+  "version": "2",
+  "props": {
+    "type": "customize",
+    "img": "APP_0001.png",
+    "name": "dsadq",
+    "loadStyle": 0,
+    "lib": [],
+    "css_script": [],
+    "customconf": [
+      "siYuanAssetId",
+      "CameraAssetId",
+      "modalW",
+      "modalH"
+    ]
+  },
+  "requirement-number": "SR-W49-Tp2OYs",
+  "requirement-name": "需要支持rtsp类型,并且能够在应用页面展示"
+}

@@ -1,0 +1,17 @@
+import request from "./request";
+
+/**
+ * 查询资产
+ * @param id 资产ID
+ *
+ */
+// export const queryAssetById = (id) =>
+//   request.post(`/asset/getAssetData?asset_id=${id}&count=99999&pageNum=1&pageSize=10`, { filters: [] });
+
+/**
+* 查询资产
+* @param id 资产ID
+*
+*/
+export const queryAssetById = (id) =>
+  request.post(`/asset/data?id=${id}`);
