@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, Breadcrumb, Modal, Form, Input, Button, Avatar, Badge, Dropdown, Menu, List, Table } from "antd";
+import { Select, Breadcrumb, Modal, Form, Input, Button, Avatar, Badge, Dropdown, Menu, List, Table, message } from "antd";
 import moment from "moment";
 import { MenuUnfoldOutlined, MenuFoldOutlined, LockOutlined, FullscreenOutlined, CaretDownOutlined } from "@ant-design/icons";
 import * as ReportingService from "./api/asset";
@@ -68,6 +68,7 @@ const App = (props) => {
     pageSize: 4,
     showSizeChanger: false,
   });
+  const UUID = "2A5E4B3C-D83C-A2A5-37CD-9DFFF289ED52";
   async function getInfoData(params) {
     let pagin = params ? { ...params.pagination } : pagination;
     const { data: res } = await ReportingService.queryList({
@@ -186,12 +187,25 @@ const App = (props) => {
     });
 
     connectWS();
+
+    document.addEventListener("fullscreenchange", (e) => {
+      if (!document.fullscreenElement) {
+        let elem = document.getElementsByClassName(`closePullScreen-${UUID}`);
+        if (elem[0]) {
+          let elemContent = document.getElementsByClassName("ant-layout-content application-content-view")[0];
+          elemContent?.removeChild(elem[0]);
+        }
+      }
+    });
+
+    return () => {
+      document.removeEventListener("fullscreenchange");
+    };
   }, []);
   const [form] = Form.useForm();
 
   useEffect(() => {
     const data = appService.getMenuData() || mockData;
-    console.log(data, 194);
     const menuData = formatData(data);
     setMenuData(menuData);
     const { menuId } = qs.parse(window.location.search);
@@ -203,7 +217,7 @@ const App = (props) => {
     }
     window.addEventListener("MenuChange", (e) => {
       console.log("进来了top", e);
-      var timer =  setTimeout(() => {
+      var timer = setTimeout(() => {
         let { menuId } = qs.parse(window.location.search);
         if (menuId) {
           const id2 = menuId.split("#")[0];
@@ -219,7 +233,9 @@ const App = (props) => {
 
       // 清除setTimeout单次定时器
     });
+
     getUserName();
+
     window.PubSub &&
       window.PubSub.subscribe("menuClick", (_, { key }) => {
         const data1 = key.split("#")[0];
@@ -252,6 +268,7 @@ const App = (props) => {
       detail: { tf: !collapsed },
     });
     window.dispatchEvent(newEvent);
+    // props.setAppMenucollapsed(!collapsed);
   };
 
   const getUserName = () => {
@@ -280,9 +297,43 @@ const App = (props) => {
   };
 
   const onEnlarge = () => {
-    const { href } = window.location;
-    const url = `${href}&enLarge=true`;
-    window.open(url);
+    // const { href } = window.location;
+    // const url = `${href}&enLarge=true`;
+    // window.open(url);
+    let elem = document.getElementsByClassName("ant-layout-content application-content-view");
+    if (elem[0]) {
+      elem = elem[0];
+      elem.requestFullscreen();
+    } else {
+      return;
+    }
+    setTimeout(() => {
+      if (document.fullscreenElement) {
+        let newSpan = document.createElement("span");
+        newSpan.className = `closePullScreen-${UUID}`;
+        newSpan.style.cssText = `
+          position: absolute;
+          right: 5px;
+          top: 0px;
+          color: #0084ff;
+          font-size: 18px;
+          cursor: pointer;
+          z-index: 999;
+        `;
+        const newContent = document.createTextNode("关闭全屏");
+        newSpan.appendChild(newContent);
+        elem.appendChild(newSpan);
+        newSpan.addEventListener("click", () => {
+          document.exitFullscreen && document.exitFullscreen();
+          elem.removeChild(newSpan);
+          elem = undefined;
+          newSpan = undefined;
+        });
+      } else {
+        message.error("全屏失败,请重试···");
+        elem = undefined;
+      }
+    }, 500);
   };
 
   const onLockScreen = () => {
@@ -341,16 +392,15 @@ const App = (props) => {
     console.log(props);
     if (key === "1") {
       console.log("onSignOutonSignOutonSignOutonSignOut");
-      if (onSignOut) {
-        onSignOut();
-      } else {
-        ReportingService.logout().then((res) => {
-          console.log(res);
-          if (res.status == "200") {
-            window.location.href = window.location.origin + "/dtyq/pngf/login";
-          }
-        });
-      }
+      // if (onSignOut) {
+      //   onSignOut();
+      // } else {
+      ReportingService.logout().then((res) => {
+        if (res.status == 200) {
+          window.location.href = window.configuration?.sso_portal_login_url;
+        }
+      });
+      // }
     }
     if (key === "2") {
       jumptoPersonalCenter && jumptoPersonalCenter();

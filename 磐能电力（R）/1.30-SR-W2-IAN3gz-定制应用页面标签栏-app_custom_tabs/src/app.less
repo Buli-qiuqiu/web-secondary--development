@@ -1,53 +1,77 @@
 
-.nskg_tabsBox {
+.pndl_tabsBox {
    background: #ffffff !important;
-}
-.unCloseBoxss {
-   .unClose {
-      position: fixed;
-      display: inline-block;
-      cursor: pointer;
-      min-width: 60px;
-      height: 38px;
-      line-height: 38px;
-      text-align: center;
-      z-index: 2;
-      background: #ffffff;
+   .unCloseBoxss {
+      .unClose {
+         position: fixed;
+         display: inline-block;
+         cursor: pointer;
+         color: #a0a0a0 !important;
+         min-width: 60px;
+         height: 40px;
+         line-height: 43px;
+         text-align: center;
+         z-index: 2;
+         font-size: 16px;
+         background: #ffffff;
+      }
+      .unCloseActive {
+         position: fixed;
+         display: inline-block;
+         cursor: pointer;
+         color: #0084ff !important;
+         min-width: 60px;
+         height: 40px;
+         line-height: 43px;
+         text-align: center;
+         z-index: 2;
+         font-size: 16px;
+         background: #ffffff;
+      }
    }
-}
 
-.right_menu {
-   position: absolute;
-   display: none;
-   border: 1px solid #f0f0f0;
-   z-index: 150;
-}
-.ant-tabs-nav {
-   background: #ffffff !important;
-   .ant-tabs-nav-list {
-      .ant-tabs-tab {
-         margin-left: 0px !important;
-         border: 0px !important;
-         background: #ffffff !important;
-         .ant-tabs-tab-remove {
-            display: none;
+   .right_menu {
+      position: absolute;
+      display: none;
+      border: 1px solid #f0f0f0;
+      z-index: 150;
+   }
+   .ant-tabs-nav {
+      background: #ffffff !important;
+      .ant-tabs-nav-list {
+         .ant-tabs-tab {
+            margin-left: 0px !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-bottom-width: 2px !important;
+            border-bottom-color: #ffffff !important;
+            background: #ffffff !important;
+            color: #a0a0a0;
+            font-size: 16px;
+            .ant-tabs-tab-remove {
+               display: none;
+            }
+         }
+         .ant-tabs-tab:hover {
+            .ant-tabs-tab-remove {
+               display: inline-block;
+            }
+         }
+         .ant-tabs-tab-active {
+            border-bottom-color:#0454f2 !important;
+            .ant-tabs-tab-btn {
+               color: #0084ff !important;
+            }
          }
       }
-      .ant-tabs-tab:hover {
-         .ant-tabs-tab-remove {
-            display: inline-block;
-         }
-      }
-      .ant-tabs-tab-active {
-         border-bottom: 2px solid #0454f2 !important;
-      }
    }
-}
-#nskg_tabs {
-   .ant-tabs-tab-btn {
-      pointer-events: none;
-   }
-   .anticon {
-      pointer-events: none;
+   #pndl_tabs {
+      .ant-tabs-tab-btn {
+         pointer-events: none;
+      }
+      .anticon {
+         pointer-events: none;
+      }
    }
 }

@@ -1,71 +1,73 @@
 ## 组件预览
+
 ![](./output/preview.png)
 
-### 插件概述
+### 插件概述 1
 
 数睿开放平台的 UI 插件为用户提供应用设计、分析仪、大屏、填报设计等核心模块自定义前端组件的能力。用户运用此能力，可以定制 UI 样式和页面逻辑。
 
 框架集成了以下的功能：
 
-+ 本地编辑开发，支持可视化预览。
-+ 集成打包命令 npm run plugin ，支持一键打包。
-+ 支持css / less / scss 语言。
-+ 内置AntD(AntD是一款企业级的UI设计语言和React UI类库)。
-+ 接口封装，使用proxy 方式代理接口，调用支持开发请求代理。
+- 本地编辑开发，支持可视化预览。
+- 集成打包命令 npm run plugin ，支持一键打包。
+- 支持 css / less / scss 语言。
+- 内置 AntD(AntD 是一款企业级的 UI 设计语言和 React UI 类库)。
+- 接口封装，使用 proxy 方式代理接口，调用支持开发请求代理。
 
 ### 开发前准备
 
-+ scli方式
-    1. 本地运行cmd命令，打开运行窗口。
-    2. 执行以下命令全局安装sdata-cli服务。
+- scli 方式
+
+  1. 本地运行 cmd 命令，打开运行窗口。
+  2. 执行以下命令全局安装 sdata-cli 服务。
 
   ```js
     npm i sdata-cli -g
   ```
-    3. 安装完成后，运行scli i，选择对应模块及框架
-    4. npm i或者yarn install安装相关依赖项，运行npm run serve(Vue版本)/npm run start(React版本)即可开始进行开发
-+ github方式
-    1.
-    本地下载github仓库[https://github.com/Orochi-sx/web-secondary--development](https://github.com/Orochi-sx/web-secondary--development/)
-    2. 切换对应的分支及插件类型，如vue版本的应用插件为vue-version-app
-    3. npm i或者yarn install安装相关依赖项，运行npm run serve(Vue版本)/npm run start(React版本)即可开始进行开发
+
+  3. 安装完成后，运行 scli i，选择对应模块及框架
+  4. npm i 或者 yarn install 安装相关依赖项，运行 npm run serve(Vue 版本)/npm run start(React 版本)即可开始进行开发
+
+- github 方式
+  1.  本地下载 github 仓库[https://github.com/Orochi-sx/web-secondary--development](https://github.com/Orochi-sx/web-secondary--development/)
+  2.  切换对应的分支及插件类型，如 vue 版本的应用插件为 vue-version-app
+  3.  npm i 或者 yarn install 安装相关依赖项，运行 npm run serve(Vue 版本)/npm run start(React 版本)即可开始进行开发
 
 ### 插件包文件说明
 
-| 文件名 | 说明                                                                                                                               |
-| --- |----------------------------------------------------------------------------------------------------------------------------------|
-| config | config文件下内容Webpack 的编译配置，不建议修改。                                                                                                  |
-| pluginTemp | 用于存放模板文件， config.json 文件用于配置插件参数，其他文件不建议修改。                                                                                      |
-| public | public目录下是一些静态文件，不建议修改。                                                                                                          |
-| scripts | scripts目录下是开发服务器启动和打包脚本，一般不需要改动。                                                                                                 |
-| src | src 目录下是插件的源码，用户在此目录下开发定制代码。                                                                                                     |
-| src/api | src/api下的文件是接口层，可以添加自己需要的Http 接口。                                                                                                |
-| src/App.js | src/App.js 是插件组件的主文件，用于开发插件的 react 组件。                                                                                           |
-| src/index.js | src/index.js 是加载入口，除了构造开发的 mock 数据外一般不需要修改。                                                                                      |
-| proxy.js | webpack proxy 配置，在开发时如果需要调用 http 请求，可以在这里配置代理，可以参考示例或者 [webpack 官方文档](https://webpack.docschina.org/configuration/dev-server/) 。 |
+| 文件名       | 说明                                                                                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| config       | config 文件下内容 Webpack 的编译配置，不建议修改。                                                                                                                      |
+| pluginTemp   | 用于存放模板文件， config.json 文件用于配置插件参数，其他文件不建议修改。                                                                                               |
+| public       | public 目录下是一些静态文件，不建议修改。                                                                                                                               |
+| scripts      | scripts 目录下是开发服务器启动和打包脚本，一般不需要改动。                                                                                                              |
+| src          | src 目录下是插件的源码，用户在此目录下开发定制代码。                                                                                                                    |
+| src/api      | src/api 下的文件是接口层，可以添加自己需要的 Http 接口。                                                                                                                |
+| src/App.js   | src/App.js 是插件组件的主文件，用于开发插件的 react 组件。                                                                                                              |
+| src/index.js | src/index.js 是加载入口，除了构造开发的 mock 数据外一般不需要修改。                                                                                                     |
+| proxy.js     | webpack proxy 配置，在开发时如果需要调用 http 请求，可以在这里配置代理，可以参考示例或者 [webpack 官方文档](https://webpack.docschina.org/configuration/dev-server/) 。 |
 
-### config.json配置文件字段说明
+### config.json 配置文件字段说明
 
-| 参数      | 参数说明                                                                                            |
-|---------|-------------------------------------------------------------------------------------------------|
-| id      | 插件标识，用户在下载插件模板时，系统自动生成，用户无需自定义。                                                                 |
-| type    | 开发插件类型|
-| main    | 插件打包后生成的上级JS文件名，插件打包时会自动更新此参数，用户无需手动配置。                                  |
-| version | 标识插件的版本，目前默认取值为“2”。                                                                             |
-| props   | 传递插件自定义相关属性。不同模块的自定义属性不同,请参见数据交互章节讲解。                                                           |
-
+| 参数    | 参数说明                                                                       |
+| ------- | ------------------------------------------------------------------------------ |
+| id      | 插件标识，用户在下载插件模板时，系统自动生成，用户无需自定义。                 |
+| type    | 开发插件类型                                                                   |
+| main    | 插件打包后生成的上级 JS 文件名，插件打包时会自动更新此参数，用户无需手动配置。 |
+| version | 标识插件的版本，目前默认取值为“2”。                                            |
+| props   | 传递插件自定义相关属性。不同模块的自定义属性不同,请参见数据交互章节讲解。      |
 
 ### 逻辑控制
 
 #### 概念引入
 
-原生js的逻辑控制
+原生 js 的逻辑控制
 
 ```js
 //原生的点击事件，鼠标点击的时候，浏览器会触发点击事件（浏览器内部提供），开发者只用书写注册代码即可在用户点击时进行交互
 document.addEventListener("click", function (e) {
-  console.log(e.clientX)
-})
+  console.log(e.clientX);
+});
 ```
 
 ### EventBus
@@ -73,24 +75,24 @@ document.addEventListener("click", function (e) {
 ```js
 //EventBus使用register注册事件
 EventBus.register(eventName, function (e) {
-  console.log(e)
+  console.log(e);
 });
 
 //EventBus使用triggerEvent触发事件，并可对外暴露相关参数
-EventBus.triggerEvent(eventName, params)
+EventBus.triggerEvent(eventName, params);
 ```
 
-#### smardaten平台EventCenter(以应用二开为例)
+#### smardaten 平台 EventCenter(以应用二开为例)
 
 ##### 原理说明
 
-逻辑控制指的将组件事件与动作开放，通过配置事件触发驱动动作的执行，将配置信息集中存储到事件中心，组件事件触发通知事件中心，事件中心按照配置分发执行组件动作，最终实现完全独立的组件之间建立逻辑通信。例如：下拉框组件的内容改变事件关联Input组件动作的显示隐藏，当下拉框内容改变的时候，通过事件中心，触发Input组件显示隐藏动作。
+逻辑控制指的将组件事件与动作开放，通过配置事件触发驱动动作的执行，将配置信息集中存储到事件中心，组件事件触发通知事件中心，事件中心按照配置分发执行组件动作，最终实现完全独立的组件之间建立逻辑通信。例如：下拉框组件的内容改变事件关联 Input 组件动作的显示隐藏，当下拉框内容改变的时候，通过事件中心，触发 Input 组件显示隐藏动作。
 
 此处的逻辑控制的对象包括应用、大屏、分析仪、填报。
 
 ##### 功能说明
 
-逻辑控制的流程的关键组件中心和事件中心。注册中心指的是将所有开放的组件事件与动作集中缓存，输出相关API逻辑控制供配置页面获取相关组件配置信息。事件中心指的是通过逻辑控制配置页面保存下来的配置信息，通过统一的查询接口，暂存到事件中心，所有组件的事件触发全部通知到事件中心，由事件中心统一分发，两者相互配合，实现插件的逻辑控制。
+逻辑控制的流程的关键组件中心和事件中心。注册中心指的是将所有开放的组件事件与动作集中缓存，输出相关 API 逻辑控制供配置页面获取相关组件配置信息。事件中心指的是通过逻辑控制配置页面保存下来的配置信息，通过统一的查询接口，暂存到事件中心，所有组件的事件触发全部通知到事件中心，由事件中心统一分发，两者相互配合，实现插件的逻辑控制。
 
 ##### 代码演示
 
@@ -160,26 +162,26 @@ destroyed()
 **`对应于EventBus的triggerEvent`**
 
 ```js
-window.eventCenter?.triggerEvent(this.props?.customConfig?.componentId, "searchValueChange", {searchValue: val})
+window.eventCenter?.triggerEvent(this.props?.customConfig?.componentId, "searchValueChange", { searchValue: val });
 ```
 
 **`对应于EventBus的register`**
 
-> smardaten平台 组件的交互页签-逻辑绑定-新增逻辑
+> smardaten 平台 组件的交互页签-逻辑绑定-新增逻辑
 
 **`对应于EventBus的function`**
 
-> smardaten平台 组件的交互页签-逻辑绑定-新增逻辑-组件动作
+> smardaten 平台 组件的交互页签-逻辑绑定-新增逻辑-组件动作
 
 ##### 接口说明
 
-| 接口 | 接口参数说明 | 描述 |
-| --- | --- | --- |
-| 在组件中心注册组件。<br>;需要将组件注册到组件中心，以供逻辑控制配置的时候可以获取到页面中渲染的组件。 | 注册接口：<br>window.componentCenter.register(id, type, ref, eventActionConfig) | ●　id：二开插件标识，string类型。<br>;●　type:固定配置为“comp”。<br>;●　ref：二开插件组件实例，obj类型。<br>;●　eventActionConfig：事件/动作的声明文件。  <br>; |
-| 在组件中心删除组件的注册配置。 <br>;组件移除时，需要将组件中心收录的组件信息删除。 | 注销接口：window.componentCenter.removeInstance(id) | id：二开插件标识，string类型。  <br>; |
-| 组件事件触发的时候需要通知事件中心，组件中心获取组件是否注册当前事件的逻辑控制，查询并执行。 | 调用执行接口：window.eventCenter.triggerEvent( id, event, payload) |● id：二开插件标识。<br>;● event：触发的事件名，应与事件的定义相同;● payload： 事件触发返回数据 例：{value: 123 }，obj类型。 |
+| 接口                                                                                                  | 接口参数说明                                                                    | 描述                                                                                                                                                                     |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 在组件中心注册组件。<br>;需要将组件注册到组件中心，以供逻辑控制配置的时候可以获取到页面中渲染的组件。 | 注册接口：<br>window.componentCenter.register(id, type, ref, eventActionConfig) | ● 　 id：二开插件标识，string 类型。<br>;● 　 type:固定配置为“comp”。<br>;● 　 ref：二开插件组件实例，obj 类型。<br>;● 　 eventActionConfig：事件/动作的声明文件。 <br>; |
+| 在组件中心删除组件的注册配置。 <br>;组件移除时，需要将组件中心收录的组件信息删除。                    | 注销接口：window.componentCenter.removeInstance(id)                             | id：二开插件标识，string 类型。 <br>;                                                                                                                                    |
+| 组件事件触发的时候需要通知事件中心，组件中心获取组件是否注册当前事件的逻辑控制，查询并执行。          | 调用执行接口：window.eventCenter.triggerEvent( id, event, payload)              | ● id：二开插件标识。<br>;● event：触发的事件名，应与事件的定义相同;● payload： 事件触发返回数据 例：{value: 123 }，obj 类型。                                            |
 
-#### 补充(手写实现简易EventBus)
+#### 补充(手写实现简易 EventBus)
 
 ```js
 class EventBus {
@@ -190,16 +192,16 @@ class EventBus {
   register(eventName, callback) {
     this.listeners[eventName] = this.listeners[eventName] || [];
     this.listeners[eventName].push({
-      callback
+      callback,
     });
   }
 
   triggerEvent(eventName, context) {
     let callbacks = this.listeners[eventName] || [];
     callbacks.forEach((callbackObj) => {
-      let callback = callbackObj.callback
+      let callback = callbackObj.callback;
       callback.call(null, context);
-    })
+    });
   }
 
   clear() {
@@ -212,15 +214,14 @@ export default new EventBus();
 
 ### 远程调试
 
-+ react版本
-    1. 修改proxy.js的target字段为代理地址
-    2. 修改src/api/request.js中document.cookie的token和refreshToken字段为代理地址请求头的相应字段
-    3. npm run start
-+ vue版本
-    1. 修改vue.config.js的target字段为代理地址，
-    2. 修改src/api/request.js中document.cookie的token和refreshToken字段为代理地址请求头的相应字段
-    3. npm run serve
-
+- react 版本
+  1. 修改 proxy.js 的 target 字段为代理地址
+  2. 修改 src/api/request.js 中 document.cookie 的 token 和 refreshToken 字段为代理地址请求头的相应字段
+  3. npm run start
+- vue 版本
+  1. 修改 vue.config.js 的 target 字段为代理地址，
+  2. 修改 src/api/request.js 中 document.cookie 的 token 和 refreshToken 字段为代理地址请求头的相应字段
+  3. npm run serve
 
 ### 插件上传
 
@@ -237,30 +238,30 @@ export default new EventBus();
 5. 在新增插件弹窗中，输入插件信息。
    ![](https://img.kancloud.cn/23/13/2313770bb2bac9c2ea9b3a413303710d_866x533.png)
 
-| 参数 | 参数说明 |
-| --- | --- |
-| 插件名称 | 插件名称。 |
-| 插件类型 | 在下拉列表中选择相应的组件类型。 |
-| 存储目录 | 选择插件的存放目录。 |
-| 是否启动 | 插件是否启动生效。只有设置为“启用”是，插件才可被使用。 |
-| 前端插件包 | 在本地选择需要上传的前端插件包。 |
-| 图标 | 单击“选择图标”，根据需要选择面性或线性类型的图标，并且可以通过配置主题颜色，配置图标的颜色。也可以选择自定义，上传自定义图标，支持的自定义图标格式有jpg、jpeg、png、bmp和svg，且图片的大小不能超过128K。 |
+| 参数       | 参数说明                                                                                                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 插件名称   | 插件名称。                                                                                                                                                                                                   |
+| 插件类型   | 在下拉列表中选择相应的组件类型。                                                                                                                                                                             |
+| 存储目录   | 选择插件的存放目录。                                                                                                                                                                                         |
+| 是否启动   | 插件是否启动生效。只有设置为“启用”是，插件才可被使用。                                                                                                                                                       |
+| 前端插件包 | 在本地选择需要上传的前端插件包。                                                                                                                                                                             |
+| 图标       | 单击“选择图标”，根据需要选择面性或线性类型的图标，并且可以通过配置主题颜色，配置图标的颜色。也可以选择自定义，上传自定义图标，支持的自定义图标格式有 jpg、jpeg、png、bmp 和 svg，且图片的大小不能超过 128K。 |
 
 ### 功能验证
 
-+ 上传二开插件包到验证环境上，写入对应的配置字段即可。基本的功能验证与本地调试基本一致
-+ events的验证，需要点到二开组件的交互界面，点击相应事件名，添加相应的打印输出逻辑，即可判断事件是否已经接入smardaten平台
-+ actions验证，可搭建最简单的场景，如一个按钮，点击事件触发对应的动作，看能否正常生效即可。
+- 上传二开插件包到验证环境上，写入对应的配置字段即可。基本的功能验证与本地调试基本一致
+- events 的验证，需要点到二开组件的交互界面，点击相应事件名，添加相应的打印输出逻辑，即可判断事件是否已经接入 smardaten 平台
+- actions 验证，可搭建最简单的场景，如一个按钮，点击事件触发对应的动作，看能否正常生效即可。
 
 ### 其他注意事项（开发过程中务必关注）
 
-+ 在组件的模板中，预置了一些事件动作相关的函数及定义，请在正式开发中将$\color{red}{用不到的事件与动作清除掉}$，并正确书写`Event_Center_getName`函数的返回值，以防止对配置人员造成困扰。
-+ 因为二开插件外层布局由配置人员通过平台布局组件实现，四种类型的前端二开组件，除非特殊要求，理论上都应该将最外层的宽高设置为100%。
-+ 二开组件代码中，如果需要获取dom元素并进行操作，react版本或vue版本都应通过ref去获取dom元素而非通过选择器，以防止组件复用时造成冲突
-+ 分析仪二开通常对图表类进行二次开发，所以应加上窗口监听事件，并在其中写入图表重绘方法 eg.
+- 在组件的模板中，预置了一些事件动作相关的函数及定义，请在正式开发中将$\color{red}{用不到的事件与动作清除掉}$，并正确书写`Event_Center_getName`函数的返回值，以防止对配置人员造成困扰。
+- 因为二开插件外层布局由配置人员通过平台布局组件实现，四种类型的前端二开组件，除非特殊要求，理论上都应该将最外层的宽高设置为 100%。
+- 二开组件代码中，如果需要获取 dom 元素并进行操作，react 版本或 vue 版本都应通过 ref 去获取 dom 元素而非通过选择器，以防止组件复用时造成冲突
+- 分析仪二开通常对图表类进行二次开发，所以应加上窗口监听事件，并在其中写入图表重绘方法 eg.
   ```js
-  let chart= echarts.init(this.refs.chart)
-  window.addEventListener("resize",function(){
-    chart.resize()
-  })
+  let chart = echarts.init(this.refs.chart);
+  window.addEventListener("resize", function () {
+    chart.resize();
+  });
   ```

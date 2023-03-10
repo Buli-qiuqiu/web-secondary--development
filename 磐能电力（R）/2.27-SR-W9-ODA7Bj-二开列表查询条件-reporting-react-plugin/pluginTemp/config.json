@@ -1,0 +1,15 @@
+{
+  "id": "5c633cf3-d5f3-42ea-800c-3a5abdc9f3b7",
+  "type": "reporting",
+  "main": "app.99d875a2.js",
+  "version": "2",
+  "props": {
+    "styleArr": "[\"title\",\"key\", \"eventCenterConfig\"]",
+    "columnStyle": "{title:'自定义'}",
+    "componentAttributes": "{\"style\":[\"title\"],\"data\":[\"key\"],\"interaction\":[\"eventCenterConfig\"]}",
+    "assetColumnList": "[{\"col_name\":\"自定义\",\"col_datatype\":0}]"
+  },
+  "requirement-number": "SR-W9-ODA7Bj",
+  "requirement-name": "二开列表查询条件",
+  "suggestedFolderName": "-SR-W9-ODA7Bj-二开列表查询条件-reporting-react-plugin"
+}

@@ -22,7 +22,7 @@ const formatData = (data, nameList) => {
 };
 
 const App = (props) => {
-  console.log('**props**', props);
+  console.log("**props**", props);
   const [openKeys, setOpenKeys] = useState([]);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState(mockData);
@@ -52,7 +52,7 @@ const App = (props) => {
     // var newEvent = new Event("falseMenuClick", { bubbles: true, cancelable: true, composed: true });
     window.addEventListener("MenuClick", (e) => {
       console.log("进来了", e);
-      props.customConfig.setAppMenucollapsed(e.detail.tf)
+      props.customConfig.setAppMenucollapsed(e.detail.tf);
       setCollapsed(e.detail.tf);
     });
     if (window.APP_SDK_DATA) {
@@ -135,7 +135,9 @@ const App = (props) => {
     });
     setKeys(selectedKeys[0]);
   };
-
+  var MenuChange = new CustomEvent("MenuChange", {
+    detail: {},
+  });
   const onOpenChange = (keys) => {
     console.log("keys", keys);
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
@@ -170,19 +172,19 @@ const App = (props) => {
 
   const handlePanNengClick = ({ key, isSubMenu }, it) => {
     let key1 = key?.split("#")[0];
+    let isTack = key?.split("#")[1] != 2;
     initData(key1, data);
     setKeys(key1);
-    if (customConfig.onPageTabsChange && (it?.children?.length === 0 || !it?.children || hidenNameList.includes(it.id)) && key1 !== keys) {
-      // window.PubSub.publish("menuClick", { key, isSubMenu });
+    if (customConfig.onPageTabsChange && (it?.children?.length === 0 || !it?.children || hidenNameList.includes(it.id)) && key1 !== keys && isTack == true) {
       // customConfig.onPageTabsChange(key)
       const customEvent = new CustomEvent("JUMP_APP_TAB", {
         detail: {
           key,
+          isSubMenu,
         },
       });
+      window.dispatchEvent(MenuChange);
       document.dispatchEvent(customEvent);
-
-      // console.log(customConfig.onPageTabsChange, '----arta');
     }
   };
 
@@ -215,7 +217,7 @@ const App = (props) => {
                 onClick={() =>
                   handlePanNengClick({
                     key: (item.type === 1 ? "system" : item.id) + "#" + item.type,
-                    isSubMenu: true,
+                    // isSubMenu: true,
                   })
                 }
               >
@@ -290,6 +292,7 @@ const App = (props) => {
                               onClick={() =>
                                 handlePanNengClick({
                                   key: (item.type === 1 ? "system" : item.id) + "#" + item.type,
+                                  isSubMenu: true,
                                 })
                               }
                               key={(item.type === 1 ? "system" : item.id) + "#" + item.type}

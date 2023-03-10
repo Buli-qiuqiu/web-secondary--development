@@ -17,13 +17,13 @@
             if (getQueryString("code")) {
                 let xhr = new XMLHttpRequest();
                 xhr.open('POST', `${window.location.origin}/sdata/rest/sso/server/login?ssoType=zzt&token=${code}`)
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
                 xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
                 xhr.send()
                 xhr.onreadystatechange = function () {
+                    console.log(xhr, 25);
                     if (xhr.readyState === 4 && xhr.status === 200) {
-                        // console.log(eval('('+xhr.responseText+')'))
-                        // let data = JSON.parse(eval('('+xhr.responseText+')')?.result.tokenInfo) || {}
                         console.log(JSON.parse(xhr.responseText))
                         let data = JSON.parse(JSON.parse(xhr.responseText)?.result.tokenInfo) || {}
                         if (data?.code == "10000241") {
@@ -37,13 +37,16 @@
                                 window.open("", "_self");
                                 window.close();
                             }
-                        } else {
-                            // window.SSO_IS_LOGIN = true;
+                        } else if (data?.result) {
+                            window.SSO_IS_LOGIN = true;
                             window.location.href = `${window.location.origin}/applicationview/content/view?appid=47f4d3a3-824f-4416-8fce-8148701f1053&type=view&menuId=e607bee1-61f6-a698-c7c5-04219cd92fd3%233&token=${data.result}`;
+                        } else {
+                            console.log('SSO登录失败');
                         }
+                    } else {
+                        console.log('SSO登录失败');
                     }
                 }
-
             } else {
                 console.log('SSO参数获取出错');
             }
